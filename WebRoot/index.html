@@ -1,0 +1,114 @@
+<html lang="zh-cn">
+  <head>
+     
+    <title>My JSP 'index.jsp' starting page</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<script type="text/javascript" src="js/jquery-1.8.1.min.js"></script>
+	<script src="http://cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.min.js"></script>  
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$("#start").click(function(){
+			 $.ajax({
+	           url:'http://192.168.1.144/DIP/Members',
+	           type:"POST",
+	           //dataType : "json",
+	           data : {'username':'testuser','password':'123456'},
+	           success:function(response) {
+	            console.log(response);
+	            $("#token").text(response);
+	            var obj = JSON.parse(response);
+	            var  token = obj["msg"];
+				var timestamp = Date.parse(new Date());
+				var hash = md5(token+timestamp+"!QAZXSW@#C"); 
+				
+				    $.ajax({
+				       //数据源
+			           //url:'http://192.168.1.144/DIP/DataSource',
+				       //查询数据源
+			           //data : {'method':'query','param':'{"page":"1","size":"10","C_ID":"1","order":"order by id desc"}'},
+				       //新建数据源
+			           //data : {'method':'create','dbInfo':'{"dbType":"mysql","dbUser":"root","dbPassword":"root","dbHost":"127.0.0.1","dbPort":"3306","dbName":"test222"}',
+			           //'mem_id':'1','status':'1','nm_t':'test222','pro_id':'1'},
+				       //删除数据源
+			           //data : {'method':'delete','dat_id':'1'},
+			           
+			           
+			           //实体
+			           //url:'http://192.168.1.144/DIP/Entity',
+			           //查询实体
+			           //data : {'method':'query','param':'{"page":"1","size":"10","mem_id":"1","order":"order by id desc"}'},
+				       //新建实体
+			           //data : {'method':'create','dat_id':'1','mem_id':'1','status':'1','nm_t':'testst2',
+			           //'desc_t':'nothing','code_t':'nothing',
+			           //'param':'[{"cn":"userid","tp":"int","lt":"4","pk":"Y","nn":"Y","ai":"Y","cm":"用户id"},{"cn":"username","tp":"varchar","lt":"20","nn":"Y","cm":"用户名"},{"cn":"password","tp":"varchar","lt":"30","nn":"Y","cm":"密码"}]'},
+			           //删除实体
+		               //data : {'method':'delete','ent_id':'3','tableName':'testst2'},
+				       
+				       //实体数据
+				       url:'http://192.168.1.144/DIP/DbService',
+				       //查询实体数据
+			           //data : {'method':'query','dat_id':'1','tableName':'user3','param':'{"userid":"2","order":"order by userid desc"}'},
+				       //新建实体数据
+			           //data : {'method':'insert','dat_id':'1','tableName':'user3','param':'{"username":"姓名","userpassword":"123456"}'},
+				       //修改实体数据
+			           //data : {'method':'update','dat_id':'1','tableName':'user3','param':'{"userpassword":"000000"}','condition':'{"userid":"3"}'},
+				       //删除实体数据
+			           //data : {'method':'delete','dat_id':'1','tableName':'user3','condition':'{"userid":"3"}'},
+  
+  
+  
+				       //自有体系数据
+			           url:'http://192.168.1.144/DIP/DipService',
+			           //查询实体数据
+			           //data : {'method':'query','tableName':'members','param':'{"order":"order by id desc"}'},
+				       //新建实体数据
+			           //data : {'method':'insert','tableName':'members','param':'{"status":"1","username":"中文测试名","userpwd":"e10adc3949ba59abbe56e057f20f883e"}'},
+				       //修改实体数据
+			           //data : {'method':'update','tableName':'members','param':'{"status":"0"}','condition':'{"id":"2"}'},
+				       //删除实体数据
+			           data : {'method':'delete','tableName':'members','condition':'{"id":"2"}'},
+ 
+			           type:"POST",
+			           headers: {
+			            "token" : token,
+			            "timesamp" : timestamp,
+			            "sign" : hash
+			        	},
+			            
+			           success:function(response) {
+			            console.log(response);
+			            $("#result").text(response);
+			             // alert(response);   
+			           },
+			           error:function(response){
+			           	alert("wrong");   
+			           }   
+				    });
+	           },
+	           error:function(response){
+	           	alert("wrong");   
+	           }   
+	         }); 
+		});
+	
+	}); 
+	</script>
+  </head>
+  
+  <body>
+  TOKEN:<div id="token"></div>
+  RESULT:<div id="result"></div>
+  <input type="button" id="start" value="测试">
+ 
+  </body>
+</html>
+
+ 

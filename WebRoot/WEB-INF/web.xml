@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name></display-name>
+  <servlet>
+    <description>data source</description>
+    <display-name>data source</display-name>
+    <servlet-name>DataSource</servlet-name>
+    <servlet-class>com.lt.dip.servlet.DataSource</servlet-class>
+  </servlet>
+  <servlet>
+    <description>data source</description>
+    <display-name>data source</display-name>
+    <servlet-name>Entity</servlet-name>
+    <servlet-class>com.lt.dip.servlet.Entity</servlet-class>
+  </servlet>
+  <servlet>
+    <description>DbService</description>
+    <display-name>DbService</display-name>
+    <servlet-name>DbService</servlet-name>
+    <servlet-class>com.lt.dip.servlet.DbService</servlet-class>
+  </servlet>
+  <servlet>
+    <description>Members</description>
+    <display-name>Members</display-name>
+    <servlet-name>Members</servlet-name>
+    <servlet-class>com.lt.dip.servlet.Members</servlet-class>
+  </servlet>
+  <servlet>
+    <description>DipService</description>
+    <display-name>DipService</display-name>
+    <servlet-name>DipService</servlet-name>
+    <servlet-class>com.lt.dip.servlet.DipService</servlet-class>
+  </servlet>
+
+
+
+
+
+  <servlet-mapping>
+    <servlet-name>DataSource</servlet-name>
+    <url-pattern>/DataSource</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Entity</servlet-name>
+    <url-pattern>/Entity</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DbService</servlet-name>
+    <url-pattern>/DbService</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Members</servlet-name>
+    <url-pattern>/Members</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DipService</servlet-name>
+    <url-pattern>/DipService</url-pattern>
+  </servlet-mapping>	
+  
+  
+  <filter>  
+    <filter-name>CORSFilter</filter-name>  
+    <filter-class>com.lt.dip.utils.CORSFilter</filter-class>  
+  </filter> 
+  <filter-mapping>  
+      <filter-name>CORSFilter</filter-name>  
+      <url-pattern>/*</url-pattern>  
+  </filter-mapping>
+  
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
