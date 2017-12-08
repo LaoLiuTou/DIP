@@ -120,8 +120,6 @@ public class DbService extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String param = request.getParameter("param"); 
 		String tableName = request.getParameter("tableName"); 
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-查询数据("+tableName+")");
 		return JdbcUtils.query(dbInfo, param, tableName);
 	}
 	/**
@@ -136,8 +134,6 @@ public class DbService extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String param = request.getParameter("param"); 
 		String tableName = request.getParameter("tableName"); 
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-新建数据("+tableName+")");
 		return JdbcUtils.insert(dbInfo, param, tableName);
 	}
 	
@@ -154,8 +150,6 @@ public class DbService extends HttpServlet {
 		String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName"); 
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-修改数据("+tableName+")");
 		return JdbcUtils.update(dbInfo, param,condition, tableName);
 	}
 	/**
@@ -171,9 +165,33 @@ public class DbService extends HttpServlet {
 		//String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-删除数据("+tableName+")");
 		return JdbcUtils.delete(dbInfo,condition, tableName);
+	}
+	/**
+	 * 获取数据表的列
+	 * @param request(dbInfo,param,tableName)
+	 * @param response
+	 * @return
+	 */
+	public String column(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String tableName = request.getParameter("tableName");
+		return JdbcUtils.selectColumn(dbInfo, tableName);
+	}
+	/**
+	 * 获取数据表的主键
+	 * @param request(dbInfo,param,tableName)
+	 * @param response
+	 * @return
+	 */
+	public String pkey(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String tableName = request.getParameter("tableName");
+		return JdbcUtils.selectPKey(dbInfo, tableName);
 	}
 	
 	/**

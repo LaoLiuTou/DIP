@@ -263,8 +263,6 @@ public class DataSource extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id");//获取数据库信息
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param");//获取数据库信息
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-查询数据源");
 		return JdbcUtils.query(localDbInfo, param, "DATASOURCES");
 	}
 	/**

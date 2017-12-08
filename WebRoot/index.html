@@ -19,8 +19,7 @@
 			 $.ajax({
 	           url:'http://192.168.1.144/DIP/Members',
 	           type:"POST",
-	           //dataType : "json",
-	           data : {'username':'testuser','password':'123456'},
+	           data : {'username':'testuser','userpwd':'123456'},
 	           success:function(response) {
 	            console.log(response);
 	            $("#token").text(response);
@@ -62,19 +61,24 @@
 			           //data : {'method':'update','dat_id':'1','tableName':'user3','param':'{"userpassword":"000000"}','condition':'{"userid":"3"}'},
 				       //删除实体数据
 			           //data : {'method':'delete','dat_id':'1','tableName':'user3','condition':'{"userid":"3"}'},
-  
+  					   //获取列
+			           //data : {'method':'column','dat_id':'1','tableName':'user3'},
+  					   //获取主键
+			           data : {'method':'pkey','dat_id':'1','tableName':'user3'},
   
   
 				       //自有体系数据
-			           url:'http://192.168.1.144/DIP/DipService',
+			           //url:'http://192.168.1.144/DIP/DipService',
 			           //查询实体数据
-			           //data : {'method':'query','tableName':'members','param':'{"order":"order by id desc"}'},
+			           //data : {'method':'query','tableName':'pages','param':'{"NM_T":"Login"}'},
 				       //新建实体数据
-			           //data : {'method':'insert','tableName':'members','param':'{"status":"1","username":"中文测试名","userpwd":"e10adc3949ba59abbe56e057f20f883e"}'},
+			           //data : {'method':'insert','tableName':'pages_controls','param':'{"MEM_ID":"2","STATUS":"11","NM_T":"111","CON_ID":"6","PAR_ID":"","ATT_ID":"4","VALUES":"50px","PAG_ID":"11","PID":"2","C_DT":"2017-12-07 10:31:22","UP_DT":"2017-12-07 10:31:22"}'},
 				       //修改实体数据
 			           //data : {'method':'update','tableName':'members','param':'{"status":"0"}','condition':'{"id":"2"}'},
 				       //删除实体数据
-			           data : {'method':'delete','tableName':'members','condition':'{"id":"2"}'},
+			           //data : {'method':'delete','tableName':'members','condition':'{"id":"2"}'},
+ 
+ 
  
 			           type:"POST",
 			           headers: {

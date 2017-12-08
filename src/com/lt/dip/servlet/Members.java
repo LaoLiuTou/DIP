@@ -67,7 +67,7 @@ public class Members extends HttpServlet {
 			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8"); 
 		String username = request.getParameter("username"); 
-		String password = request.getParameter("password"); 
+		String password = request.getParameter("userpwd"); 
 		PrintWriter out = response.getWriter();
 		String result=JdbcUtils.getToken(username,password);
 		out.print(result);

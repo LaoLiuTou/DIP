@@ -163,7 +163,7 @@ public class ConnectPoolC3P0 {
 				con = null;
 			}
 			//
-			dataSourceMap.remove(c3p0Key);
+			//dataSourceMap.remove(c3p0Key);
 		}
 	}
 		
@@ -363,7 +363,7 @@ public class ConnectPoolC3P0 {
 			// 关闭连接 释放资源
 			this.freeResultSet(rs);
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 
 		return list;
@@ -397,7 +397,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			// 关闭连接 释放资源
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 
 		return result;
@@ -432,7 +432,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			// 关闭连接 释放资源
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 		
 		return result;
@@ -525,7 +525,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			this.freeResultSet(rs);
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 
 		return result;
@@ -567,7 +567,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			this.freeResultSet(rs);
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 		
 		return list;
@@ -627,7 +627,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			this.freeResultSet(rs);
 			this.freeStatement(ps);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 		
 		return list;
@@ -680,7 +680,7 @@ public class ConnectPoolC3P0 {
 		} finally {
 			this.freeResultSet(rs);
 			this.freeStatement(pstmt);
-			//this.freeConnection(conn,c3p0Key);
+			this.freeConnection(conn,c3p0Key);
 		}
 		
 		return obj;

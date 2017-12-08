@@ -123,8 +123,6 @@ public class Entity extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id"); 
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param"); 
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-查询实体");
 		return JdbcUtils.query(localDbInfo, param, "ENTITIES");
 	}
 	/**
@@ -140,8 +138,6 @@ public class Entity extends HttpServlet {
 		String ent_id = request.getParameter("ent_id");//实体id
 		String dbInfo = JdbcUtils.getDbInfoByEid(ent_id);//获取数据库信息
 		String tableName = request.getParameter("tableName"); 
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-删除实体");
 		//删除本地表中记录
 		String localTN="entities";
 		JSONObject  paramJO = new JSONObject();

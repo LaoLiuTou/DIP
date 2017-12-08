@@ -120,8 +120,6 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-查询数据("+tableName+")");
 		return JdbcUtils.query(localDbInfo, param, tableName);
 	}
 	/**
@@ -134,8 +132,6 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-新建数据("+tableName+")");
 		return JdbcUtils.insert(localDbInfo, param, tableName);
 	}
 	
@@ -150,8 +146,6 @@ public class DipService extends HttpServlet {
 		String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-修改数据("+tableName+")");
 		return JdbcUtils.update(localDbInfo, param,condition, tableName);
 	}
 	/**
@@ -164,8 +158,6 @@ public class DipService extends HttpServlet {
 		
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		logger.info("数据库信息："+localDbInfo);
-		logger.info("数据库操作-删除数据("+tableName+")");
 		return JdbcUtils.delete(localDbInfo,condition, tableName);
 	}
 	
