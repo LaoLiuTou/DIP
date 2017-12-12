@@ -54,7 +54,7 @@
 				       //实体数据
 				       url:'http://192.168.1.144/DIP/DbService',
 				       //查询实体数据
-			           //data : {'method':'query','dat_id':'1','tableName':'user3','param':'{"userid":"2","order":"order by userid desc"}'},
+			           data : {'method':'query','dat_id':'1','tableName':'user3','param':'{"username":"!|3333","order":"order by userid desc"}'},
 				       //新建实体数据
 			           //data : {'method':'insert','dat_id':'1','tableName':'user3','param':'{"username":"姓名","userpassword":"123456"}'},
 				       //修改实体数据
@@ -64,9 +64,14 @@
   					   //获取列
 			           //data : {'method':'column','dat_id':'1','tableName':'user3'},
   					   //获取主键
-			           data : {'method':'pkey','dat_id':'1','tableName':'user3'},
-  
-  
+			           //data : {'method':'pkey','dat_id':'1','tableName':'user3'},
+  					   //备份
+			           //data : {'method':'backUp','dat_id':'2'},
+  					   //恢复
+			           //data : {'method':'restore','dat_id':'2','file_path':'D:/backupDatabase/2017-12-12/23141318-44b2-49f1-b5d5-580b206e6621.sql'},
+  						
+  						
+  						
 				       //自有体系数据
 			           //url:'http://192.168.1.144/DIP/DipService',
 			           //查询实体数据

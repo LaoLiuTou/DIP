@@ -194,6 +194,33 @@ public class DbService extends HttpServlet {
 		return JdbcUtils.selectPKey(dbInfo, tableName);
 	}
 	
+	
+	/**
+	 * 备份
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public String backUp(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		return JdbcUtils.backUp(dbInfo);
+	}
+	/**
+	 * 恢复
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public String restore(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String filePath = request.getParameter("file_path");//备份文件路径
+		return JdbcUtils.restore(dbInfo,filePath);
+	}
+	
 	/**
 	 * Initialization of the servlet. <br>
 	 *

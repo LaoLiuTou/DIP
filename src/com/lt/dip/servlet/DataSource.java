@@ -14,7 +14,10 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import redis.clients.jedis.Jedis;
+
 import com.lt.dip.utils.JdbcUtils;
+import com.lt.dip.utils.RedisUtil;
 
 public class DataSource extends HttpServlet {
 
@@ -118,6 +121,7 @@ public class DataSource extends HttpServlet {
 	 * @param response
 	 * @return
 	 */
+	@SuppressWarnings("static-access")
 	public String create(HttpServletRequest request, HttpServletResponse response){
 		JSONObject resultJO=new JSONObject();
 		String dbInfo = request.getParameter("dbInfo");//获取数据库信息
@@ -132,42 +136,59 @@ public class DataSource extends HttpServlet {
 			try {
 				JSONObject dbJO = JSONObject.fromObject(dbInfo);
 				try {
-					//创建数据库
-					String createDBStr=JdbcUtils.createDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
-							dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
-					
-					////////////////////////
-					if(createDBStr.equals("创建数据库成功！")){
-						//同时在数据源表中插入数据
-						String mem_id = request.getParameter("mem_id"); 
-						String status = request.getParameter("status"); 
-						String nm_t = request.getParameter("nm_t"); 
-						String pro_id = request.getParameter("pro_id"); 
-						JSONObject localParam=new JSONObject();
-						localParam.put("mem_id", mem_id);
-						localParam.put("status", status);
-						localParam.put("nm_t", nm_t);
-						localParam.put("pro_id", pro_id);
-						localParam.put("ds_json", dbInfo);
-						String localTN="datasources";
-						JSONObject insertResult=JSONObject.fromObject(
-								JdbcUtils.insert(localDbInfo, localParam.toString(), localTN));
-						
-						if(insertResult.getString("status").equals("0")){
-							resultJO.put("status", "0");
-							resultJO.put("msg", createDBStr);
-						}
-						else{
-							JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
-									dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
-							resultJO.put("status", "-1");
-							resultJO.put("msg", "保存数据源出错！");
-						}
+					//判断是否为redis
+					if(dbJO.getString("dbType").equals("redis")){
+						Jedis jedis=new RedisUtil(dbJO.getString("dbHost"), dbJO.getString("dbPort")).getJedisObject();
+				    	if(jedis==null){
+				    		resultJO.put("status", "-1");
+							resultJO.put("msg", "创建redis连接失败！");
+				    	}
+				    	else{
+				    		resultJO.put("status", "0");
+							resultJO.put("msg", "创建redis连接成功！");
+				    	}
 					}
 					else{
-						resultJO.put("status", "-1");
-						resultJO.put("msg", createDBStr);
+						
+						//创建数据库
+						String createDBStr=JdbcUtils.createDb(dbJO.getString("dbType"),dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
+								dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
+						
+						////////////////////////
+						if(createDBStr.equals("创建数据库成功！")){
+							//同时在数据源表中插入数据
+							String mem_id = request.getParameter("mem_id"); 
+							String status = request.getParameter("status"); 
+							String nm_t = request.getParameter("nm_t"); 
+							String pro_id = request.getParameter("pro_id"); 
+							JSONObject localParam=new JSONObject();
+							localParam.put("mem_id", mem_id);
+							localParam.put("status", status);
+							localParam.put("nm_t", nm_t);
+							localParam.put("pro_id", pro_id);
+							localParam.put("ds_json", dbInfo);
+							String localTN="SYS_DATASOURCES";
+							JSONObject insertResult=JSONObject.fromObject(
+									JdbcUtils.insert(localDbInfo, localParam.toString(), localTN));
+							
+							if(insertResult.getString("status").equals("0")){
+								resultJO.put("status", "0");
+								resultJO.put("msg", createDBStr);
+							}
+							else{
+								JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
+										dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
+								resultJO.put("status", "-1");
+								resultJO.put("msg", "保存数据源出错！");
+							}
+						}
+						else{
+							resultJO.put("status", "-1");
+							resultJO.put("msg", createDBStr);
+						}
 					}
+					
+					
 		        	
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -212,22 +233,29 @@ public class DataSource extends HttpServlet {
 				JSONObject dbJO = JSONObject.fromObject(dbInfo);
 				try {
 					//删除本地表中记录
-					String localTN="datasources";
+					String localTN="SYS_DATASOURCES";
 					JSONObject  paramJO = new JSONObject();
 					paramJO.put("id", dat_id);
 					JSONObject dropResult=JSONObject.fromObject(
 							JdbcUtils.delete(localDbInfo, paramJO.toString(), localTN));
 					if(dropResult.getString("status").equals("0")){
-						//删除实体数据库
-						String dropDBStr=JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
-								dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
-						if(dropDBStr.equals("数据库已删除！")){
-							resultJO.put("status", "0");
+						//判断是否为redis
+						if(dbJO.getString("dbType").equals("redis")){
+							logger.info("redis无删除操作！");
 						}
 						else{
-							resultJO.put("status", "-1");
+							//删除实体数据库
+							String dropDBStr=JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
+									dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
+							if(dropDBStr.equals("数据库已删除！")){
+								resultJO.put("status", "0");
+							}
+							else{
+								resultJO.put("status", "-1");
+							}
+							resultJO.put("msg", dropDBStr);
 						}
-						resultJO.put("msg", dropDBStr);
+						
 					}
 					else{
 						resultJO=dropResult;
@@ -263,7 +291,7 @@ public class DataSource extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id");//获取数据库信息
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param");//获取数据库信息
-		return JdbcUtils.query(localDbInfo, param, "DATASOURCES");
+		return JdbcUtils.query(localDbInfo, param, "SYS_DATASOURCES");
 	}
 	/**
 	 * Initialization of the servlet. <br>

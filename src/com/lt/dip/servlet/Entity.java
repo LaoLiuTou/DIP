@@ -123,7 +123,7 @@ public class Entity extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id"); 
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param"); 
-		return JdbcUtils.query(localDbInfo, param, "ENTITIES");
+		return JdbcUtils.query(localDbInfo, param, "SYS_ENTITIES");
 	}
 	/**
 	 * 删除
@@ -139,7 +139,7 @@ public class Entity extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByEid(ent_id);//获取数据库信息
 		String tableName = request.getParameter("tableName"); 
 		//删除本地表中记录
-		String localTN="entities";
+		String localTN="SYS_ENTITIES";
 		JSONObject  paramJO = new JSONObject();
 		paramJO.put("id", ent_id);
 		JSONObject dropResult=JSONObject.fromObject(
@@ -186,7 +186,7 @@ public class Entity extends HttpServlet {
 			localParam.put("desc_t", desc_t);
 			localParam.put("code_t", code_t);
 			localParam.put("dat_id", dat_id);
-			String localTN="entities";
+			String localTN="SYS_ENTITIES";
 			JSONObject insertResult=JSONObject.fromObject(
 					JdbcUtils.insert(localDbInfo, localParam.toString(), localTN));
 			////////////////////////

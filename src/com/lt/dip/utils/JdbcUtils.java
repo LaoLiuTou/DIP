@@ -1,11 +1,22 @@
 package com.lt.dip.utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,35 +44,69 @@ public class JdbcUtils {
 	* @param dbPassword
 	* @throws Exception
 	*/
-	public static String  createDb(String dbHost,String dbPort,String dbName,
+	public static String  createDb(String dbType, String dbHost,String dbPort,String dbName,
 			String dbUser,String dbPassword) throws Exception {
 		String resultstr="创建数据库失败！";
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
-			+ dbUser + "&password=" + dbPassword
-			+ "&characterEncoding=UTF8";
-			Connection conn = DriverManager.getConnection(connStr);
-			Statement stat = conn.createStatement();
-			if (conn != null) {   
-				 System.out.println("连接成功！");
-			 }
-			String sql = "SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='"+dbName+"'";
-			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
-			ResultSet rs = pstmt.executeQuery();
-			//rs.last();  rs.getRow()>0
-			//int col = rs.getMetaData().getColumnCount();
-		    if(rs.next()){
-				resultstr="数据库已存在！"; 
-		    }
-		    else{
-				sql = "CREATE DATABASE " + dbName + " CHARACTER SET UTF8";
-				stat.execute(sql);
-				resultstr="创建数据库成功！";
-		    }
-			stat.close();
-			conn.close();
+			
+			if(dbType.equals("oracle")){
+				
+        	}
+        	else if(dbType.equals("sqlserver")){
+        		Class.forName("com.mysql.jdbc.Driver");
+    			Class.forName("com.mysql.jdbc.Driver").newInstance();
+    			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
+    			+ dbUser + "&password=" + dbPassword
+    			+ "&characterEncoding=UTF8";
+    			Connection conn = DriverManager.getConnection(connStr);
+    			Statement stat = conn.createStatement();
+    			if (conn != null) {   
+    				 System.out.println("连接成功！");
+    			}
+    			String sql = "SELECT * FROM MASTER.DBO.SYSDATABASES WHERE NAME='"+dbName+"'";
+    			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+    			ResultSet rs = pstmt.executeQuery();
+    			//rs.last();  rs.getRow()>0
+    			//int col = rs.getMetaData().getColumnCount();
+    		    if(rs.next()){
+    				resultstr="数据库已存在！"; 
+    		    }
+    		    else{
+    				sql = "CREATE DATABASE " + dbName ;
+    				stat.execute(sql);
+    				resultstr="创建数据库成功！";
+    		    }
+    			stat.close();
+    			conn.close();
+        	}
+        	else if(dbType.equals("mysql")){
+        		Class.forName("com.mysql.jdbc.Driver");
+    			Class.forName("com.mysql.jdbc.Driver").newInstance();
+    			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
+    			+ dbUser + "&password=" + dbPassword
+    			+ "&characterEncoding=UTF8";
+    			Connection conn = DriverManager.getConnection(connStr);
+    			Statement stat = conn.createStatement();
+    			if (conn != null) {   
+    				 System.out.println("连接成功！");
+    			}
+    			String sql = "SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='"+dbName+"'";
+    			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+    			ResultSet rs = pstmt.executeQuery();
+    			//rs.last();  rs.getRow()>0
+    			//int col = rs.getMetaData().getColumnCount();
+    		    if(rs.next()){
+    				resultstr="数据库已存在！"; 
+    		    }
+    		    else{
+    				sql = "CREATE DATABASE " + dbName + " CHARACTER SET UTF8";
+    				stat.execute(sql);
+    				resultstr="创建数据库成功！";
+    		    }
+    			stat.close();
+    			conn.close();
+        	}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -351,7 +396,20 @@ public class JdbcUtils {
 								String key=(String) iterator.next();
 								if(!key.equals("order")&&!key.equals("page")&&!key.equals("size")){
 									String value=paramJO.getString(key);
-									paramList.add(key+"='"+value+"' ");
+									if(value.startsWith("%|")){
+										paramList.add(key+" LIKE '"+value.split("\\|")[1]+"' ");
+									}
+									else if(value.startsWith("!|")){
+										paramList.add(key+" <> '"+value.split("\\|")[1]+"' ");
+									}
+									else if(value.startsWith(">|")||value.startsWith("<|")||
+											value.startsWith(">=|")||value.startsWith("<=|")){
+										paramList.add(key+value.split("\\|")[0]+" '"+value.split("\\|")[1]+"' ");
+									}
+									else{
+										paramList.add(key+"='"+value+"' ");
+									}
+									
 								}
 							}
 							if(paramList.size()>0){
@@ -716,7 +774,7 @@ public class JdbcUtils {
 			ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
 	        		dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
 	        		dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-			String querySql = "SELECT * FROM DATASOURCES WHERE ID="+dat_id;
+			String querySql = "SELECT * FROM SYS_DATASOURCES WHERE ID="+dat_id;
 			List<Map<String, String>> resultMap = cp.queryForMap(c3p0Key, querySql, null);
 			if(resultMap.size()>0){
 				
@@ -753,10 +811,10 @@ public class JdbcUtils {
 			ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
 	        		dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
 	        		dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-			String querySql = "SELECT * FROM ENTITIES WHERE ID="+e_id;
+			String querySql = "SELECT * FROM SYS_ENTITIES WHERE ID="+e_id;
 			List<Map<String, String>> resultDMap = cp.queryForMap(c3p0Key, querySql, null);
 			if(resultDMap.size()>0){ 
-				querySql = "SELECT * FROM DATASOURCES WHERE ID="+resultDMap.get(0).get("dat_id");
+				querySql = "SELECT * FROM SYS_DATASOURCES WHERE ID="+resultDMap.get(0).get("dat_id");
 				List<Map<String, String>> resultEMap = cp.queryForMap(c3p0Key, querySql, null);
 				if(resultEMap.size()>0){ 
 					result=resultEMap.get(0).get("ds_json");
@@ -794,7 +852,7 @@ public class JdbcUtils {
 			ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
 	        		dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
 	        		dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-			String querySql = "SELECT * FROM MEMBERS WHERE USERNAME='"+username+"'";
+			String querySql = "SELECT * FROM SYS_MEMBERS WHERE USERNAME='"+username+"'";
 			List<Map<String, String>> resultDMap = cp.queryForMap(c3p0Key, querySql, null);
 			if(resultDMap.size()>0){ 
 				String localpass=resultDMap.get(0).get("userpwd");
@@ -969,5 +1027,252 @@ public class JdbcUtils {
 		}
 		return resultJO.toString();
 	}
+	/**
+	 * 备份数据库
+	 * @param (dbInfo,param,tableName)
+	 * @return
+	 */
+	public static String backUp(String dbInfo){
+		Logger logger = Logger.getLogger("DipLogger");
+		JSONObject resultJO=new JSONObject();
+		logger.info("数据库信息："+dbInfo);
+		logger.info("数据库操作-备份数据库");
+		if(dbInfo==null||dbInfo.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
+			logger.info("没有传递dbInfo参数,请给出数据源连接信息");
+		}
+		else{
+			try {
+				JSONObject dbJO = JSONObject.fromObject(dbInfo);
+				if(dbJO.getString("dbType").equals("oracle")){
+					resultJO.put("status", "-1");
+					resultJO.put("msg", "正在开发中！");
+	        	}
+	        	else if(dbJO.getString("dbType").equals("sqlserver")){
+	        		resultJO.put("status", "-1");
+					resultJO.put("msg", "正在开发中！");
+	        	}
+	        	else if(dbJO.getString("dbType").equals("mysql")){
+	        		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        		Properties props = new Properties();  
+	    	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
+	    			String backupDir=props.getProperty("backupDir")+"/"+sdf.format(new Date());
+	    			String fileName=UUID.randomUUID()+".sql";
+	    			
+	        		if (exportMysql(dbJO.getString("dbHost"),dbJO.getString("dbUser"),dbJO.getString("dbPassword"), 
+	        				backupDir, fileName, dbJO.getString("dbName"))) {  
+	        			resultJO.put("status", "0");
+	    				resultJO.put("msg", backupDir+"/"+fileName);  
+	                } else { 
+	                	resultJO.put("status", "-1");
+	    				resultJO.put("msg", "数据库备份失败！");
+	                } 
+	        	}
+	            
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				resultJO.put("status", "-1");
+				resultJO.put("msg", "数据源连接信息格式错误！");
+				logger.info("数据源连接信息格式错误！");
+				e.printStackTrace();
+			}
+		}
+		return resultJO.toString();
+	}
+	/**
+	 * 还原数据库
+	 * @param (dbInfo,param,tableName)
+	 * @return
+	 */
+	public static String restore(String dbInfo,String filePath){
+		Logger logger = Logger.getLogger("DipLogger");
+		JSONObject resultJO=new JSONObject();
+		logger.info("数据库信息："+dbInfo);
+		logger.info("数据库操作-恢复数据库");
+		if(dbInfo==null||dbInfo.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
+			logger.info("没有传递dbInfo参数,请给出数据源连接信息");
+		}
+		else if(filePath==null||filePath.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "恢复文件路径为空！");
+			logger.info("恢复文件路径为空！");
+		}
+		else{
+			try {
+				JSONObject dbJO = JSONObject.fromObject(dbInfo);
+				if(dbJO.getString("dbType").equals("oracle")){
+					resultJO.put("status", "-1");
+					resultJO.put("msg", "正在开发中！");
+				}
+				else if(dbJO.getString("dbType").equals("sqlserver")){
+					resultJO.put("status", "-1");
+					resultJO.put("msg", "正在开发中！");
+				}
+				else if(dbJO.getString("dbType").equals("mysql")){
+					 
+					
+					if (importMysql(dbJO.getString("dbHost"),dbJO.getString("dbUser"),dbJO.getString("dbPassword"), 
+							filePath, dbJO.getString("dbName"))) {  
+						resultJO.put("status", "0");
+						resultJO.put("msg", "数据库恢复成功！");  
+					} else { 
+						resultJO.put("status", "-1");
+						resultJO.put("msg", "数据库恢复失败！");
+					} 
+				}
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				resultJO.put("status", "-1");
+				resultJO.put("msg", "数据源连接信息格式错误！");
+				logger.info("数据源连接信息格式错误！");
+				e.printStackTrace();
+			}
+		}
+		return resultJO.toString();
+	}
 	
+	  /** 
+     * Mysql数据库导出 
+     * @param hostIP MySQL数据库所在服务器地址IP 
+     * @param userName 进入数据库所需要的用户名 
+     * @param password 进入数据库所需要的密码 
+     * @param savePath 数据库导出文件保存路径 
+     * @param fileName 数据库导出文件文件名 
+     * @param databaseName 要导出的数据库名 
+     * @return 返回true表示导出成功，否则返回false。 
+     */  
+    public static boolean exportMysql(String hostIP, String userName, String password,
+    		String savePath, String fileName, String databaseName) throws InterruptedException {  
+        
+    	Logger logger = Logger.getLogger("DipLogger");
+    	File saveFile = new File(savePath);  
+        if (!saveFile.exists()) {// 如果目录不存在  
+            saveFile.mkdirs();// 创建文件夹  
+        }  
+        if(!savePath.endsWith(File.separator)){  
+            savePath = savePath + File.separator;  
+        }  
+          
+        PrintWriter printWriter = null;  
+        BufferedReader bufferedReader = null;  
+        try {  
+        	
+            printWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(savePath + fileName), "utf8"));  
+            String cmdStr="";
+            if(password.equals("")){
+            	cmdStr="mysqldump -h" + hostIP + " -u" + userName + " --default-character-set=utf8 --set-charset=1 " + databaseName;
+            }
+            else{
+            	cmdStr="mysqldump -h" + hostIP + " -u" + userName + " -p" + password + " --default-character-set=utf8 --set-charset=1 " + databaseName;
+            }
+            logger.info("备份命令："+cmdStr);
+            Process process = Runtime.getRuntime().exec(cmdStr);  
+            InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream(), "utf8");  
+            bufferedReader = new BufferedReader(inputStreamReader);  
+            String line;  
+            while((line = bufferedReader.readLine())!= null){  
+                printWriter.println(line);  
+            }  
+            printWriter.flush();  
+            if(process.waitFor() == 0){//0 表示线程正常终止。  
+                return true;  
+            }  
+        }catch (IOException e) {  
+            e.printStackTrace();  
+        } finally {  
+            try {  
+                if (bufferedReader != null) {  
+                    bufferedReader.close();  
+                }  
+                if (printWriter != null) {  
+                    printWriter.close();  
+                }  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        return false;  
+    }  
+    
+    /** 
+     * 还原D:db.sql到erp数据库 
+     * @return 
+     */  
+    public static boolean importMysql(String hostIP, String userName, String password,
+    		String filePath, String databaseName) {//还原  
+    	Logger logger = Logger.getLogger("DipLogger");
+        try {  
+               
+            Runtime rt = Runtime.getRuntime();    
+            String cmdStr="";
+            if(password.equals("")){
+            	cmdStr="mysql -h" + hostIP + " -u" + userName + " "+databaseName;
+            }
+            else{
+            	cmdStr="mysql -h" + hostIP + " -u" + userName + " -p" + password + " "+databaseName;
+            }
+           
+            logger.info("还原命令："+cmdStr);
+            logger.info("还原文件路径："+filePath);
+            // 调用 mysql 的 cmd:    
+            Process child = rt.exec(cmdStr);    
+            OutputStream out = child.getOutputStream();//控制台的输入信息作为输出流    
+            String inStr;    
+            StringBuffer sb = new StringBuffer("");    
+            String outStr;    
+            BufferedReader br = new BufferedReader(new InputStreamReader(    
+                    new FileInputStream(filePath), "utf8"));    
+            while ((inStr = br.readLine()) != null) {    
+                sb.append(inStr + "\r\n");    
+            }    
+            outStr = sb.toString();    
+        
+            OutputStreamWriter writer = new OutputStreamWriter(out, "utf8");    
+            writer.write(outStr);    
+            // 注：这里如果用缓冲方式写入文件的话，会导致中文乱码，用flush()方法则可以避免    
+            writer.flush();    
+            // 别忘记关闭输入输出流    
+            out.close();    
+            br.close();    
+            writer.close();    
+            return true;     
+        } catch (Exception e) {    
+            e.printStackTrace();    
+        }    
+        return false;    
+    }     
+    
+    /** 
+     * Oracle数据库导出 
+     *  
+     * @param hostIP 数据库地址 
+     * @param userName 进入数据库所需要的用户名 
+     * @param password 进入数据库所需要的密码 
+     * @param SID 用户所在的SID 
+     * @param savePath 数据库导出文件保存路径 
+     * @param fileName 数据库导出文件文件名 
+     * @return 返回true表示导出成功，否则返回false。 
+     */  
+    public static boolean exportOracle(String hostIP,String userName, String password,  String savePath, String fileName,String SID) throws InterruptedException {  
+        File saveFile = new File(savePath);  
+        if (!saveFile.exists()) {// 如果目录不存在  
+            saveFile.mkdirs();// 创建文件夹  
+        }  
+        try {  
+        	//exp anjian/anjian@124.234.102.102/orcl owner=anjian file=D:\anjian.dmp
+            Process process = Runtime.getRuntime().exec("exp "+userName+"/"+password+"@"+
+        	hostIP+"/"+SID+" owner="+userName+" file="+savePath+"/"+fileName+".dmp");  
+            if(process.waitFor() == 0){//0 表示线程正常终止。   
+                return true;  
+            }  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        return false;  
+    }  
+     
 }
