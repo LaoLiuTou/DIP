@@ -92,7 +92,7 @@ public class ConnectPoolC3P0 {
 	        	else if(dbType.toLowerCase().equals("mysql")){
 	        		driverClassName= "com.mysql.jdbc.Driver";
 	        		url="jdbc:"+dbType.toLowerCase()+"://"+dbHost+":"+dbPort+"/"+dbName+
-	        				"?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&allowMultiQueries=TRUE";
+	        				"?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&allowMultiQueries=TRUE&useSSL=false";
 	            }
 			   
 				dataSource = new ComboPooledDataSource();
@@ -438,6 +438,36 @@ public class ConnectPoolC3P0 {
 		return result;
 	}
 
+	/**
+	 * 用于事务控制，添加 使用
+	 * @param sql
+	 * @param param
+	 * @return
+	 */
+	public int insert(Connection conn, String sql, List<Object> param) {
+		// 处理结果
+		int result = 0;
+		PreparedStatement ps = null;
+		try {
+			  
+			// 执行预备语句
+			Statement  stmt=conn.createStatement();  
+	        int row=stmt.executeUpdate (sql,Statement.RETURN_GENERATED_KEYS);  
+	        ResultSet rs = stmt.getGeneratedKeys ();  
+	        if ( rs.next() ) {  
+	          int key = rs.getInt(row);  
+	          result=key;
+	        }   
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			this.freeStatement(ps);
+		}
+		
+		return result;
+	}
 	/**
 	 * 用于事务控制，修改，删除，添加 使用
 	 * @param sql

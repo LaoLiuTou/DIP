@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 
 import com.lt.dip.utils.JdbcUtils;
+import com.lt.dip.utils.TranUtil;
 
 public class DbService extends HttpServlet {
 	
@@ -193,6 +194,33 @@ public class DbService extends HttpServlet {
 		String tableName = request.getParameter("tableName");
 		return JdbcUtils.selectPKey(dbInfo, tableName);
 	}
+	/**
+	 * 事物处理多步操作
+	 * @param request(dbInfo,param,tableName)
+	 * @param response
+	 * @return
+	 */
+	public String tran(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String mulParam = request.getParameter("mulParam"); 
+		return TranUtil.tran(dbInfo, mulParam);
+	}
+	/**
+	 * 执行sql
+	 * @param request(dbInfo,type,sql)
+	 * @param response
+	 * @return
+	 */
+	public String execute(HttpServletRequest request, HttpServletResponse response){
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String type = request.getParameter("type"); 
+		String sql = request.getParameter("sql"); 
+		return JdbcUtils.execute(dbInfo, type,sql);
+	}
+	
 	
 	
 	/**
