@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0 
  */
 public class TokenUtils {
-    public static Map<String,String> map=new ConcurrentHashMap<String, String>();
-    public static void add(String token,String timesamp){
-        map.put(token,timesamp);
+    public static Map<String,TokenBean> map=new ConcurrentHashMap<String, TokenBean>();
+    public static void add(String token,TokenBean tokenBean){
+        map.put(token,tokenBean);
     }
-    public static String get(String token){
+    public static TokenBean get(String token){
        return map.get(token);
     }
  
@@ -29,5 +29,25 @@ public class TokenUtils {
             System.out.println(entry.getValue()+":"+entry.getKey());
         }
     }
-
+    
+    
+    
+    public class TokenBean { 
+    	private String timesamp;
+    	private String username;
+		public String getTimesamp() {
+			return timesamp;
+		}
+		public void setTimesamp(String timesamp) {
+			this.timesamp = timesamp;
+		}
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+    	
+       
+    } 
 }

@@ -76,6 +76,8 @@ public class DbService extends HttpServlet {
 		Class c = this.getClass();//获得当前类的Class对象
 		
 		String name = request.getParameter("method");//获取方法名
+		String userName = (String) request.getAttribute("userName");//用户名
+		logger.info("用户("+userName+")执行方法："+getClass().getName()+"-"+name);
         if(name == null || name.isEmpty()){
         	resultJO.put("status", "-1");
         	resultJO.put("msg", "没有传递method参数,请给出你想调用的方法");

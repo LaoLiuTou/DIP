@@ -10,6 +10,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.lt.dip.utils.TokenUtils.TokenBean;
  
 
 public class CORSFilter implements Filter {  
@@ -36,30 +38,44 @@ public class CORSFilter implements Filter {
 	        
 	        if(sign!=null&&sign.toLowerCase().equals(signMd5.toLowerCase())){
 	        	long removeTime = 60*60*1000;//失效时间
-	        	String tokenTime = TokenUtils.get(token);
-	        	
-	        	if(tokenTime!=null){
-	        		
-	        		long timesampLong=Long.parseLong(timesamp);
-	        		long tokenTimeLong=Long.parseLong(tokenTime);
-	        		if((timesampLong-tokenTimeLong)>removeTime){
-	        			//token过期
-	        			TokenUtils.remove(token);
-	        			StringBuffer msg = new StringBuffer("{\"status\":\"expire\",\"msg\":\"token不存在或已经销毁！\"}");
+	        	TokenBean tokenBean= TokenUtils.get(token);
+	        	if(tokenBean!=null){
+	        		String tokenTime = tokenBean.getTimesamp();
+		        	String userName=tokenBean.getUsername();
+		        	
+		        	if(tokenTime!=null){
+		        		
+		        		long timesampLong=Long.parseLong(timesamp);
+		        		long tokenTimeLong=Long.parseLong(tokenTime);
+		        		if((timesampLong-tokenTimeLong)>removeTime){
+		        			//token过期
+		        			TokenUtils.remove(token);
+		        			StringBuffer msg = new StringBuffer("{\"status\":\"expire\",\"msg\":\"token不存在或已经销毁！\"}");
+				        	response.getWriter().write(msg.toString()); 
+		        		}
+		        		else{
+		        			
+		        			//获取保存的用户名
+		        			request.setAttribute("userName", userName); 
+		        			 //签名通过
+			                chain.doFilter(request, response);	
+			                //更新token时间
+			                tokenBean.setTimesamp(timesamp);
+			                TokenUtils.add(token, tokenBean);
+		        		}
+		        	}
+		        	else{
+		        		//token对应时间为空 认为token不存在
+		        		StringBuffer msg = new StringBuffer("{\"status\":\"expire\",\"msg\":\"token不存在或已经销毁！\"}");
 			        	response.getWriter().write(msg.toString()); 
-	        		}
-	        		else{
-	        			 //签名通过
-		                chain.doFilter(request, response);	
-		                //更新token时间
-		                TokenUtils.add(token, timesamp);
-	        		}
+		        	}
 	        	}
 	        	else{
 	        		//token对应时间为空 认为token不存在
 	        		StringBuffer msg = new StringBuffer("{\"status\":\"expire\",\"msg\":\"token不存在或已经销毁！\"}");
 		        	response.getWriter().write(msg.toString()); 
 	        	}
+	        	
 	        }else{
 	            //签名不通过，向app后端发送错误信息，提示重新登录
 	        	StringBuffer msg = new StringBuffer("{\"status\":\"mismatch\",\"msg\":\"签名错误！\"}");

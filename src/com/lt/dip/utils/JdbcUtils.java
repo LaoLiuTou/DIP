@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.lt.dip.servlet.DataSource;
+import com.lt.dip.utils.TokenUtils.TokenBean;
 
 public class JdbcUtils {
 
@@ -1101,7 +1102,11 @@ public class JdbcUtils {
 					String userToken= UUID.randomUUID().toString();
 					resultJO.put("status", "0");
 					resultJO.put("msg", userToken); 
-  					TokenUtils.add(userToken, System.currentTimeMillis()+"");
+					//存储token 
+					TokenUtils.TokenBean tokenBean =new TokenUtils().new TokenBean();
+					tokenBean.setTimesamp(System.currentTimeMillis()+"");
+					tokenBean.setUsername(username);
+  					TokenUtils.add(userToken, tokenBean);
   					logger.info("用户"+username+"登录成功！分配Token："+userToken);
 				}
 				else{
