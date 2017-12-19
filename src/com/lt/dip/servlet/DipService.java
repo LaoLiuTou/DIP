@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.lt.dip.utils.ConfigUtil;
 import com.lt.dip.utils.JdbcUtils;
 
 public class DipService extends HttpServlet {
@@ -24,7 +25,6 @@ public class DipService extends HttpServlet {
 	private static final long serialVersionUID = 7365017666329529426L;
 
 	Logger logger = Logger.getLogger("DipLogger");
-	private String localDbInfo;
 	/**
 	 * Constructor of the object.
 	 */
@@ -120,7 +120,7 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.query(localDbInfo, param, tableName);
+		return JdbcUtils.query(ConfigUtil.getConfig(), param, tableName);
 	}
 	/**
 	 * 插入数据
@@ -132,7 +132,7 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.insert(localDbInfo, param, tableName);
+		return JdbcUtils.insert(ConfigUtil.getConfig(), param, tableName);
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class DipService extends HttpServlet {
 		String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.update(localDbInfo, param,condition, tableName);
+		return JdbcUtils.update(ConfigUtil.getConfig(), param,condition, tableName);
 	}
 	/**
 	 * 删除数据
@@ -158,7 +158,7 @@ public class DipService extends HttpServlet {
 		
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.delete(localDbInfo,condition, tableName);
+		return JdbcUtils.delete(ConfigUtil.getConfig(),condition, tableName);
 	}
 	
 	/**
@@ -168,22 +168,6 @@ public class DipService extends HttpServlet {
 	 */
 	public void init() throws ServletException {
 		// Put your code here
-		try {
-			Properties props = new Properties();  
-	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
-			JSONObject dbJO=new JSONObject();
-			dbJO.accumulate("dbType", props.getProperty("dbType").trim());
-			dbJO.accumulate("dbUser", props.getProperty("dbUser").trim());
-			dbJO.accumulate("dbPassword", props.getProperty("dbPassword").trim());
-			dbJO.accumulate("dbHost", props.getProperty("dbHost").trim());
-			dbJO.accumulate("dbPort", props.getProperty("dbPort").trim());
-			dbJO.accumulate("dbName", props.getProperty("dbName").trim());
-			localDbInfo=dbJO.toString();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.info("本地数据源配置错误！");
-			e.printStackTrace();
-		} 
 	}
 
 }

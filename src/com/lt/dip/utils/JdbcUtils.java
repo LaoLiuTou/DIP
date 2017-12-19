@@ -233,7 +233,11 @@ public class JdbcUtils {
 								 }
 								 //备注
 								 if(paramJO.containsKey("cm")){
-									 colStr+=" COMMENT '"+paramJO.getString("cm")+"'";
+									 colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
+								 }
+								 //默认值 需要传单引号
+								 if(paramJO.containsKey("df")){
+									 colStr+=" DEFAULT "+paramJO.getString("df")+" ";
 								 }
 								 paramList.add(colStr) ;
 							}
@@ -1251,6 +1255,84 @@ public class JdbcUtils {
 					resultJO.put("status", "-1");
 					resultJO.put("msg", "查询失败！");
 					logger.info("查询失败！"+e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				resultJO.put("status", "-1");
+				resultJO.put("msg", "数据源连接信息格式错误！");
+				logger.info("数据源连接信息格式错误！");
+				e.printStackTrace();
+			}
+		}
+		return resultJO.toString();
+	}
+	/**
+	 * 新建外键
+	 * @param (dbInfo,param,tableName)
+	 * @return
+	 */
+	public static String createFK(String dbInfo,String tableNameS,String colS,String tableNameP,String colP){
+		Logger logger = Logger.getLogger("DipLogger");
+		JSONObject resultJO=new JSONObject();
+		logger.info("数据库信息："+dbInfo);
+		logger.info("数据库操作-新建外键("+tableNameS+"("+colS+")"+"-"+tableNameP+"("+colP+"))");
+		if(dbInfo==null||dbInfo.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
+			logger.info("没有传递dbInfo参数,请给出数据源连接信息");
+		}
+		else if(tableNameS==null||tableNameS.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递tableName参数,请给出数据表名称");
+			logger.info("没有传递tableName参数,请给出数据表名称");
+		}
+		else if(tableNameP==null||tableNameP.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递tableNameP参数,请给出数据表名称");
+			logger.info("没有传递tableNameP参数,请给出数据表名称");
+		}
+		else if(colS==null||colS.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递col参数,请给出外键对应列名");
+			logger.info("没有传递col参数,请给出外键对应列名");
+		}
+		else if(colP==null||colP.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递colP参数,请给出外键关联列名");
+			logger.info("没有传递colP参数,请给出外键对应列名");
+		}
+		else{
+			try {
+				JSONObject dbJO = JSONObject.fromObject(dbInfo);
+				try {
+					String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+					String alterSql ="";
+					String fkName="FK_"+UUID.randomUUID();
+					if(dbJO.getString("dbType").equals("oracle")){
+					}
+					else if(dbJO.getString("dbType").equals("sqlserver")){
+					}
+					else if(dbJO.getString("dbType").equals("mysql")){
+						
+						alterSql="ALTER TABLE `"+tableNameS+"` ADD CONSTRAINT `"+fkName+"` FOREIGN KEY (`"+colS+
+								"`) REFERENCES `"+tableNameP+"` (`"+colP+"`) ON DELETE CASCADE ON UPDATE CASCADE;";
+					}
+					
+					cp.execute(c3p0Key, alterSql,null);
+					resultJO.put("status", "0");
+					resultJO.put("msg", "添加外键成功！");
+					//日志
+					logger.info("执行SQL："+alterSql);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					resultJO.put("status", "-1");
+					resultJO.put("msg", "添加外键失败！");
+					logger.info("添加外键失败！"+e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 				

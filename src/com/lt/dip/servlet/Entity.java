@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.lt.dip.utils.ConfigUtil;
 import com.lt.dip.utils.JdbcUtils;
 
 public class Entity extends HttpServlet {
@@ -25,7 +26,6 @@ public class Entity extends HttpServlet {
 	 */
 	private static final long serialVersionUID = -4429099898458159211L;
 	Logger logger = Logger.getLogger("DipLogger");
-	private String localDbInfo;
 	
 	/**
 	 * Constructor of the object.
@@ -123,7 +123,7 @@ public class Entity extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id"); 
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param"); 
-		return JdbcUtils.query(localDbInfo, param, "SYS_ENTITIES");
+		return JdbcUtils.query(ConfigUtil.getConfig(), param, "SYS_ENTITIES");
 	}
 	/**
 	 * 删除
@@ -143,7 +143,7 @@ public class Entity extends HttpServlet {
 		JSONObject  paramJO = new JSONObject();
 		paramJO.put("id", ent_id);
 		JSONObject dropResult=JSONObject.fromObject(
-				JdbcUtils.delete(localDbInfo, paramJO.toString(), localTN));
+				JdbcUtils.delete(ConfigUtil.getConfig(), paramJO.toString(), localTN));
 		if(dropResult.getString("status").equals("0")){
 			//删除数据表
 			result=JdbcUtils.deleteTable(dbInfo, tableName);
@@ -188,7 +188,7 @@ public class Entity extends HttpServlet {
 			localParam.put("dat_id", dat_id);
 			String localTN="SYS_ENTITIES";
 			JSONObject insertResult=JSONObject.fromObject(
-					JdbcUtils.insert(localDbInfo, localParam.toString(), localTN));
+					JdbcUtils.insert(ConfigUtil.getConfig(), localParam.toString(), localTN));
 			////////////////////////
 			if(insertResult.getString("status").equals("0")){
 				result=createResult.toString();
@@ -213,22 +213,6 @@ public class Entity extends HttpServlet {
 	 */
 	public void init() throws ServletException {
 		// Put your code here
-		try {
-			Properties props = new Properties();  
-	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
-			JSONObject dbJO=new JSONObject();
-			dbJO.accumulate("dbType", props.getProperty("dbType").trim());
-			dbJO.accumulate("dbUser", props.getProperty("dbUser").trim());
-			dbJO.accumulate("dbPassword", props.getProperty("dbPassword").trim());
-			dbJO.accumulate("dbHost", props.getProperty("dbHost").trim());
-			dbJO.accumulate("dbPort", props.getProperty("dbPort").trim());
-			dbJO.accumulate("dbName", props.getProperty("dbName").trim());
-			localDbInfo=dbJO.toString();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.info("本地数据源配置错误！");
-			e.printStackTrace();
-		} 
 	}
 
 }

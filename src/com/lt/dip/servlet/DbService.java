@@ -221,6 +221,22 @@ public class DbService extends HttpServlet {
 		return JdbcUtils.execute(dbInfo, type,sql);
 	}
 	
+	/**
+	 * 新建外键
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public String fkey(HttpServletRequest request, HttpServletResponse response){
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String tableNameS = request.getParameter("tableNameS"); 
+		String tableNameP = request.getParameter("tableNameP"); 
+		String colS = request.getParameter("colS"); 
+		String colP = request.getParameter("colP"); 
+		return JdbcUtils.createFK(dbInfo, tableNameS,colS,tableNameP,colP);
+	}
+	
 	
 	
 	/**

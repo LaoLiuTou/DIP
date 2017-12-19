@@ -32,6 +32,7 @@ public class QAJson {
 	 * @param qResult 问题json
 	 * @return 答案json
 	 */
+	@SuppressWarnings("unused")
 	private static String mateQuestion(String qResult){
 		String aResult="";
 		try {

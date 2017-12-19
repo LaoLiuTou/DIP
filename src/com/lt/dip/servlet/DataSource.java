@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import redis.clients.jedis.Jedis;
 
+import com.lt.dip.utils.ConfigUtil;
 import com.lt.dip.utils.JdbcUtils;
 import com.lt.dip.utils.RedisUtil;
 
@@ -29,7 +30,6 @@ public class DataSource extends HttpServlet {
 	 * 
 	 */
 	Logger logger = Logger.getLogger("DipLogger");
-	private String localDbInfo;
 	/**
 	 * Constructor of the object.
 	 */
@@ -169,7 +169,7 @@ public class DataSource extends HttpServlet {
 							localParam.put("ds_json", dbInfo);
 							String localTN="SYS_DATASOURCES";
 							JSONObject insertResult=JSONObject.fromObject(
-									JdbcUtils.insert(localDbInfo, localParam.toString(), localTN));
+									JdbcUtils.insert(ConfigUtil.getConfig(), localParam.toString(), localTN));
 							
 							if(insertResult.getString("status").equals("0")){
 								resultJO.put("status", "0");
@@ -237,7 +237,7 @@ public class DataSource extends HttpServlet {
 					JSONObject  paramJO = new JSONObject();
 					paramJO.put("id", dat_id);
 					JSONObject dropResult=JSONObject.fromObject(
-							JdbcUtils.delete(localDbInfo, paramJO.toString(), localTN));
+							JdbcUtils.delete(ConfigUtil.getConfig(), paramJO.toString(), localTN));
 					if(dropResult.getString("status").equals("0")){
 						//判断是否为redis
 						if(dbJO.getString("dbType").equals("redis")){
@@ -291,7 +291,7 @@ public class DataSource extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id");//获取数据库信息
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
 		String param = request.getParameter("param");//获取数据库信息
-		return JdbcUtils.query(localDbInfo, param, "SYS_DATASOURCES");
+		return JdbcUtils.query(ConfigUtil.getConfig(), param, "SYS_DATASOURCES");
 	}
 	/**
 	 * Initialization of the servlet. <br>
@@ -299,24 +299,7 @@ public class DataSource extends HttpServlet {
 	 * @throws ServletException if an error occurs
 	 */
 	public void init() throws ServletException {
-		
-		try {
-			Properties props = new Properties();  
-	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
-			JSONObject dbJO=new JSONObject();
-			dbJO.accumulate("dbType", props.getProperty("dbType").trim());
-			dbJO.accumulate("dbUser", props.getProperty("dbUser").trim());
-			dbJO.accumulate("dbPassword", props.getProperty("dbPassword").trim());
-			dbJO.accumulate("dbHost", props.getProperty("dbHost").trim());
-			dbJO.accumulate("dbPort", props.getProperty("dbPort").trim());
-			dbJO.accumulate("dbName", props.getProperty("dbName").trim());
-			localDbInfo=dbJO.toString();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.info("本地数据源配置错误！");
-			e.printStackTrace();
-		} 
-				
+
 	}
 
 }
