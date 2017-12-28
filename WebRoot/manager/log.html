@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<!--[if lte IE 10]><script type="text/javascript">window.location="a-error/.html";</script><![endif]-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>数据执行日志</title>
+    <meta name="keywords" content="数据集成平台"/>
+    <link rel="stylesheet" type="text/css"  href="css/style.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datetimepicker.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/manager/md5.js"></script>
+    <script src="js/manager/config.js"></script>
+    <script src="js/manager/json2.js"></script>
+
+
+    <!--时间选择器-->
+    <script src="js/bootstrap-datetimepicker.js"></script>
+    <script src="js/bootstrap-datetimepicker.zh-CN.js"></script>
+
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            //初始化日期插件
+            $('#searchDate').datetimepicker({
+                format: 'yyyy-mm-dd',
+                language:  'zh-CN',
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 4,
+                forceParse: 0,
+                pickerPosition:'bottom'//日期插件弹出的位置
+            });
+            var currentPage=1;
+            var pageSize=10;
+            querySys_sqllogs(currentPage,pageSize);
+
+            $('#pageUl').on('click','.pageBtn',function(){
+                currentPage=$(this).attr('index');
+                querySys_sqllogs(currentPage,pageSize);
+            });
+            $('#pageUl').on('click','.prevBtn',function(){
+                currentPage--;
+                querySys_sqllogs(currentPage,pageSize);
+
+            });
+            $('#pageUl').on('click','.nextBtn',function(){
+                currentPage++;
+                querySys_sqllogs(currentPage,pageSize);
+
+            });
+            $('#pageUl').on('click','#jumpBtn',function(){
+                var reg=/^[1-9]\d*$|^0$/;
+                if(reg.test($('#jumpPageText').val())==true){
+                    querySys_sqllogs($('#jumpPageText').val(),pageSize);
+                }else{
+                    alert("页码输入有误！");
+                    return false;
+                }
+
+            });
+            $('#searchBtn').click(function(){
+                querySys_sqllogs(currentPage,pageSize);
+            });
+        });
+        function  querySys_sqllogs (currentPage,pageSize) {
+            $('#logTbody').html('');
+            var param='{"page":"'+currentPage+'","size":"'+pageSize+'","order":"order by id desc"';
+            if($('#searchDate').val()!=''){
+                param+=',"op_dt":"date|'+$('#searchDate').val()+'"';
+            }
+
+            if($('#objects').val()!=''){
+                param+=',"objects":"'+$('#objects').val()+'"';
+            }
+
+            param+='}';
+
+            var bodyParam={'method':'query','tableName':'sys_sqllogs','param':param};
+            var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+            httpR.HttpRequest(function(response){
+                var obj = JSON.parse(response);
+                var status = obj['status'];
+                var msg = obj['msg'];
+
+                if(status=='0'){
+                    var data=msg['data'];
+                    //保存数据到变量
+                    interfaceData=msg['data'];
+                    var html='';
+                    var userinfo = JSON.parse(sessionStorage.getItem('sys_user'));
+                    for(var o in data){
+                        html+='<tr index='+o+'>\n' +
+                            '<td>'+data[o].planame+'</td>\n' +
+                            '<td>'+userinfo[data[o].mem_id]+'</td>\n' +
+                            '<td>'+data[o].objects+'</td>\n' +
+                            '<td>'+data[o].operations+'</td>\n' +
+                            '<td>'+data[o].op_dt+'</td>\n' +
+                            '</tr>';
+                    }
+                    $('#logTbody').html(html);
+
+
+                    var num=msg['num'];
+                    var pageHtml='';
+                    var totalPage=0;
+                    if(num%pageSize==0){
+                        totalPage=num/pageSize;
+                    }
+                    else{
+                        totalPage=Math.ceil(num/pageSize);
+                    }
+                    //alert(num%pageSize+'---'+num/pageSize+'---'+totalPage);
+                    if(currentPage==1){
+                        pageHtml+='<li class="disabled"><a href="#">首页</a></li>';
+                        pageHtml+='<li class="disabled"><a href="#">上一页</a></li>';
+                    }
+                    else{
+                        pageHtml+='<li ><a href="#" class="pageBtn" index="1">首页</a></li>';
+                        pageHtml+='<li ><a href="#" class="prevBtn" index="">上一页</a></li>';
+                    }
+                    if(totalPage<=7){
+                        for(var i=1;i<Number(totalPage)+1;i++){
+                            if(currentPage==i){
+                                pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                            }
+                            else{
+                                pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                            }
+                        }
+                    }
+                    else{
+                        if(currentPage<=3){
+                            for(var i=1;i<=7;i++){
+                                if(currentPage==i){
+                                    pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                                }
+                                else{
+                                    pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                                }
+                            }
+                        }
+                        else if(totalPage-currentPage<3){
+                            for(var i=Number(totalPage)-7;i<=totalPage;i++){
+                                if(currentPage==i){
+                                    pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                                }
+                                else{
+                                    pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                                }
+                            }
+                        }
+                        else{
+                            for(var i=Number(currentPage)-3;i<=Number(currentPage)+3;i++){
+                                if(currentPage==i){
+                                    pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                                }
+                                else{
+                                    pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                                }
+                            }
+                        }
+
+
+                    }
+
+                    if(currentPage==totalPage){
+                        pageHtml+='<li class="disabled"><a href="#">下一页</a></li>';
+                        pageHtml+='<li class="disabled"><a href="#">尾页</a></li>';
+                    }
+                    else{
+                        pageHtml+='<li class="nextBtn" index=""><a href="#">下一页</a></li>';
+                        pageHtml+='<li class="pageBtn" index="'+totalPage+'"><a href="#">尾页</a></li>';
+                    }
+                    pageHtml+='<li><input type="text" id="jumpPageText" class="paging-inpbox form-control"></li>\n' +
+                        '<li><button type="button" id="jumpBtn" class="paging-btnbox btn btn-primary">跳转</button></li>\n' +
+                        '<li><span class="number-of-pages">共'+totalPage+'页</span></li>';
+
+                    $('#pageUl').html(pageHtml);
+
+
+
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<!--line1-->
+<div class="topbar">
+    <img class="logo-img fl" src="images/logo.png" />
+    <h1 class="fl">数据集成平台</h1>
+    <div class="userexit-box fr">
+        <a href="#" class="exit-box fr" id="logout" data-toggle="modal" data-target="#logout-dialog">退出</a>
+        <a href="user-management.html" id="loginName" class="username fr">用户名称</a>
+        <a href="datasource.html" class="home-box fr">首页</a>
+    </div>
+</div>
+<div class="clean"></div>
+<!--line2-->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        文件<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">保存</a></li>
+                        <li><a href="#">另存为</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        视图<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">工具栏</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!--line3-->
+<div class="functionarea clearfix">
+    <a href="#" title="保存" class="btn-keep fl">保存</a>
+    <a href="#" title="删除" class="btn-delete fl">删除</a>
+</div>
+<div class="clean"></div>
+<div class="content-out">
+    <div class="content-centerB">
+        <div class="titleboxB">
+            <span class="titleword">数据执行日志</span>
+            <div class="fr text-right">
+                <form class="form-inline fl mr10">
+                    <div class="form-group">
+                        <label class="label-font14">操作对象</label>
+                        <select class="form-control" id="objects">
+                            <option value="">请选择操作对象</option>
+                            <option value="sys_datasources">sys_datasources</option>
+                            <option value="sys_entities">sys_entities</option>
+                            <option value="sys_entities">sys_members</option>
+                            <option value="sys_interfaces">sys_interfaces</option>
+                            <option value="sys_pages">sys_pages</option>
+                            <option value="sys_entities_pages">sys_entities_pages</option>
+                            <option value="sys_attributes">sys_attributes</option>
+                            <option value="sys_projects">sys_projects</option>
+                            <option value="sys_documents">sys_documents</option>
+                            <option value="sys_versions">sys_versions</option>
+                            <option value="sys_rules">sys_rules</option>
+
+                        </select>
+                    </div>
+                </form>
+
+                <form class="form-horizontal fl mr10 mt5">
+                    <fieldset>
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-prepend input-group">
+                                    <span class="add-on input-group-addon"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>
+                                    <input type="text" readonly="readonly" style="width: 200px" name="birthday" id="searchDate" class="form-control" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+
+                <button type="button" class="btn btn-primary" id="searchBtn">查询</button>
+
+            </div>
+        </div>
+        <div class="part1">
+
+            <table class="table table-bordered table-hover tab-user-mana">
+                        <thead>
+                            <tr>
+                                <th>平台名称</th>
+                                <th>用户名称</th>
+                                <th>操作对象</th>
+                                <th>操作</th>
+                                <th>操作时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTbody">
+                            <!--<tr class="info">
+                                <td>数据平台</td>
+                                <td>admin</td>
+                                <td>智慧茸鹿养殖（数据源）</td>
+                                <td>增加</td>
+                                <td>2017/12/19 09:40</td>
+                            </tr>
+                            <tr>
+                                <td>数据平台</td>
+                                <td>admin</td>
+                                <td>智慧茸鹿养殖（数据源）</td>
+                                <td>增加</td>
+                                <td>2017/12/19 09:40</td>
+                            </tr>
+                            <tr>
+                                <td>数据平台</td>
+                                <td>admin</td>
+                                <td>智慧茸鹿养殖（数据源）</td>
+                                <td>增加</td>
+                                <td>2017/12/19 09:40</td>
+                            </tr>-->
+                        </tbody>
+                    </table>
+
+
+            <div class="col-md-12 text-center">
+                <ul class="pagination" id="pageUl">
+                    <!-- <li><a href="#">首页</a></li>
+                    <li><a href="#">上一页</a></li>
+                    <li class="active"><a href="#">1</a></li>
+                    <li class="disabled"><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">4</a></li>
+                    <li><a href="#">5</a></li>
+                    <li><a href="#">6</a></li>
+                    <li><a href="#">下一页</a></li>
+                    <li><a href="#">尾页</a></li>
+
+                    <li><input type="text" class="paging-inpbox form-control"></li>
+                    <li><button type="submit" class="paging-btnbox btn btn-primary">跳转</button></li>
+                    <li><span class="number-of-pages">共9999</span></li>-->
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--模态框分割线2-->
+<div class="modal fade" id="logout-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">退出确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要退出吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="logoutBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+</html>

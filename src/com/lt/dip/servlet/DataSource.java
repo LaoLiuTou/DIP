@@ -3,7 +3,6 @@ package com.lt.dip.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -127,6 +126,7 @@ public class DataSource extends HttpServlet {
 	public String create(HttpServletRequest request, HttpServletResponse response){
 		JSONObject resultJO=new JSONObject();
 		String dbInfo = request.getParameter("dbInfo");//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-新建数据库");
 		if(dbInfo==null||dbInfo.equals("")){
@@ -171,7 +171,7 @@ public class DataSource extends HttpServlet {
 							localParam.put("ds_json", dbInfo);
 							String localTN="SYS_DATASOURCES";
 							JSONObject insertResult=JSONObject.fromObject(
-									JdbcUtils.insert(ConfigUtil.getConfig(), localParam.toString(), localTN));
+									JdbcUtils.insert(userId,ConfigUtil.getConfig(), localParam.toString(), localTN));
 							
 							if(insertResult.getString("status").equals("0")){
 								resultJO.put("status", "0");
@@ -189,7 +189,6 @@ public class DataSource extends HttpServlet {
 							resultJO.put("msg", createDBStr);
 						}
 					}
-					
 					
 		        	
 				} catch (Exception e) {
@@ -223,6 +222,7 @@ public class DataSource extends HttpServlet {
 		//通过id查询数据源信息
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-删除数据库");
 		if(dbInfo==null||dbInfo.equals("")){
@@ -239,7 +239,7 @@ public class DataSource extends HttpServlet {
 					JSONObject  paramJO = new JSONObject();
 					paramJO.put("id", dat_id);
 					JSONObject dropResult=JSONObject.fromObject(
-							JdbcUtils.delete(ConfigUtil.getConfig(), paramJO.toString(), localTN));
+							JdbcUtils.delete(userId,ConfigUtil.getConfig(), paramJO.toString(), localTN));
 					if(dropResult.getString("status").equals("0")){
 						//判断是否为redis
 						if(dbJO.getString("dbType").equals("redis")){
@@ -249,20 +249,19 @@ public class DataSource extends HttpServlet {
 							//删除实体数据库
 							String dropDBStr=JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
 									dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
-							if(dropDBStr.equals("数据库已删除！")){
+							if(dropDBStr.equals("数据库已删除！")||dropDBStr.equals("数据库不存在！")){
 								resultJO.put("status", "0");
 							}
 							else{
 								resultJO.put("status", "-1");
 							}
-							resultJO.put("msg", dropDBStr);
+							resultJO.put("msg", "数据库已删除！");
 						}
 						
 					}
 					else{
 						resultJO=dropResult;
 					}
-				 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					resultJO.put("status", "-1");
@@ -279,6 +278,7 @@ public class DataSource extends HttpServlet {
 			}
 			
 		}
+		
 		return resultJO.toString();
 	}
 	
@@ -292,8 +292,9 @@ public class DataSource extends HttpServlet {
 		
 		//String dbs_id = request.getParameter("dbs_id");//获取数据库信息
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		String param = request.getParameter("param");//获取数据库信息
-		return JdbcUtils.query(ConfigUtil.getConfig(), param, "SYS_DATASOURCES");
+		return JdbcUtils.query(userId,ConfigUtil.getConfig(), param, "SYS_DATASOURCES");
 	}
 	/**
 	 * Initialization of the servlet. <br>

@@ -328,7 +328,7 @@ public class DateUtil {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);
 
-        DateFormat form = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        DateFormat form = new SimpleDateFormat("yyyy-MM-dd HH:mm:dd", Locale.CHINA);
         form.setTimeZone(TimeZone.getDefault());
         String str = form.format(date);
 

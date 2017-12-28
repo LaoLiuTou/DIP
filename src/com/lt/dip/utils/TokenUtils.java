@@ -35,6 +35,7 @@ public class TokenUtils {
     public class TokenBean { 
     	private String timesamp;
     	private String username;
+    	private String userid;
 		public String getTimesamp() {
 			return timesamp;
 		}
@@ -46,6 +47,12 @@ public class TokenUtils {
 		}
 		public void setUsername(String username) {
 			this.username = username;
+		}
+		public String getUserid() {
+			return userid;
+		}
+		public void setUserid(String userid) {
+			this.userid = userid;
 		}
     	
        

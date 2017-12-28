@@ -69,6 +69,7 @@ public class Members extends HttpServlet {
 		String username = request.getParameter("username"); 
 		String password = request.getParameter("userpwd"); 
 		PrintWriter out = response.getWriter();
+		
 		String result=JdbcUtils.getToken(username,password);
 		out.print(result);
 		out.flush();

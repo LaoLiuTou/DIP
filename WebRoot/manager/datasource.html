@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<!--[if lte IE 10]><script type="text/javascript">window.location="a-error/.html";</script><![endif]-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>数据源</title>
+    <meta name="keywords" content="数据集成平台"/>
+    <link rel="stylesheet" type="text/css"  href="css/style.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/manager/md5.js"></script>
+    <script src="js/manager/config.js"></script>
+    <script src="js/manager/json2.js"></script>
+    <script src="js/manager/datasource.js"></script>
+    <!--simple tree-->
+    <script type="text/javascript" src="js/SimpleTree.js"></script>
+
+    <script type="text/javascript">
+        $(function(){
+
+            $(".st_tree_data").SimpleTree({
+                click:function(a){
+                    if(!$(a).attr("hasChild"))
+                        alert($(a).attr("ref"));
+                }
+            });
+
+            $(".st_tree_popup").SimpleTree({
+                click:function(a){
+                    if(!$(a).attr("hasChild"))
+                        alert($(a).attr("ref"));
+                }
+            });
+
+        });
+    </script>
+
+
+</head>
+<body>
+<!--line1-->
+<div class="topbar">
+    <img class="logo-img fl" src="images/logo.png" />
+    <h1 class="fl">数据集成平台</h1>
+    <div class="userexit-box fr">
+        <a href="#" class="exit-box fr" id="logout" data-toggle="modal" data-target="#logout-dialog">退出</a>
+        <a href="user-management.html" id="loginName" class="username fr">用户名称</a>
+        <a href="datasource.html" class="home-box fr">首页</a>
+    </div>
+</div>
+<div class="clean"></div>
+<!--line2-->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        文件<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">保存</a></li>
+                        <li><a href="#">另存为</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        视图<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">工具栏</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!--line3-->
+<div class="functionarea clearfix">
+    <a href="#" title="保存" class="btn-keep fl" data-toggle="modal" data-target="#datasources-update" id="save">保存</a>
+    <!--<a href="#" title="删除" class="btn-delete fl">删除</a>-->
+
+    <span class="btn-line-divi fl"></span>
+    <a href="log.html" title="数据执行日志" class="btn-data-execution-log fl">数据执行日志</a>
+
+</div>
+<div class="clean"></div>
+<div class="content-out">
+    <div class="content-leftA">
+        <div class="part1">
+            <div class="titleboxA">
+                <span class="tltle-line">数据源</span>
+                <a href="#"  title="新建" class="titlebox-btn" data-toggle="modal" data-target="#newly-data-source">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
+
+            </div>
+
+            <div class="list-group part3-box" id="datasourceDiv">
+            </div>
+
+
+        </div>
+        <div class="part2">
+            <div class="titleboxA">
+                <span class="tltle-line">实体库</span>
+            </div>
+            <div class="list-group part1-box">
+                <div class="st_tree_data">
+                    <ul show="true">
+                        <li><a href="#" id="entityTitle"></a></li>
+                        <ul show="true"  id="entityUl">
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--////////////////////////////////different area//////////////////////-->
+    <div class="content-centerC">
+        <div class="titleboxB">
+            <span class="titleword" id="datasourceTitle">数据源（智慧茸鹿养殖）</span>
+            <div class="fr text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-entity">添加实体</button>
+                <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#config-delete-x" id="delete">删除实体</button>
+            </div>
+        </div>
+        <div class="part2">
+
+            <ul class="entity-box pad0" id="entityUl_show">
+                <!--<a href="#"><li class="active">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>
+                <a href="#"><li class="">aaaaaaaaa_bbbbbbbbb</li></a>-->
+
+            </ul>
+
+        </div>
+    </div>
+    <div class="content-rightA">
+        <div class="part1">
+            <div class="titleboxA">
+                <span class="tltle-line">接口列表</span>
+            </div>
+            <div class="list-group part3-box" id="interfaceDiv">
+            </div>
+        </div>
+
+        <!--////////////////////////////////different area//////////////////////-->
+        <div class="part2">
+            <div class="titleboxA">
+                <span class="tltle-line">参数设置</span>
+            </div>
+            <div class="part1-box mt20">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">数据源</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="ds_nm_t" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">状态</label>
+                        <div class="col-sm-8 pdlr10">
+                            <select class="form-control" id="ds_status">
+                                <option value="1">启用</option>
+                                <option value="0">停用</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">类型</label>
+                        <div class="col-sm-8 pdlr10">
+                            <select class="form-control" id="update_dbType">
+                                <option value="mysql">mysql</option>
+                                <option value="oracle">oracle</option>
+                                <option value="sql server">sql server</option>
+                                <option value="redis">redis</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">地址</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="update_dbHost" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">端口</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="update_dbPort" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">实例名称</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="update_dbName" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">用户名</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="update_dbUser" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">密码</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="update_dbPassword" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">创建时间</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input class="form-control" id="ds_c_dt" type="text" placeholder="2017/10/10" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">创建者</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input class="form-control" id="ds_mem_id"  type="text" placeholder="Administrator" disabled>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+<!--通用删除-->
+<div class="modal fade" id="config-delete-x" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">删除确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要删除吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="entityDelBtn">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+    <div class="modal fade" id="datasources-update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title titlewordC">修改确认</h4>
+                </div>
+                <div class="modal-body remind-bg">您确定要保存对数据源的修改吗？</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn">确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+<!--模态框分割线3添加实体-->
+<div class="modal fade" id="add-entity" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title titlewordC">
+                    添加实体
+                </h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>名称：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control"  placeholder="请输入名称">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>描述：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <textarea class="form-control textarea-line" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <button type="button" class="btn btn-primary">
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+<!--模态框分割线5新建数据源-->
+<div class="modal fade" id="newly-data-source" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title titlewordC">
+                    新建数据源
+                </h4>
+            </div>
+
+
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>名称：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="datasource_nm_t" class="form-control"  placeholder="请输入名称">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>类型：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <select class="form-control" id="dbType">
+                                    <option value="mysql">mysql</option>
+                                    <option value="oracle">oracle</option>
+                                    <option value="sql server">sql server</option>
+                                    <option value="redis">redis</option>
+                                </select>
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>地址：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="dbHost" class="form-control"  placeholder="请输入数据源连接地址">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>端口：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="dbPort" class="form-control"  placeholder="请输入数据源连接端口">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>库名称：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="dbName" class="form-control"  placeholder="请输入数据库实例名">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>用户名：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="dbUser" class="form-control"  placeholder="请输入数据库用户名">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>密码：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="dbPassword" class="form-control"  placeholder="请输入数据库密码">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>状态：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <select class="form-control" id="datasource_status">
+                                    <option value="1">启用</option>
+                                    <option value="0">停用</option>
+                                </select>
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <button type="button" class="btn btn-primary" id="addDatasourceBtn">
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+<!--模态框分割线2-->
+<div class="modal fade" id="logout-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">退出确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要退出吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="logoutBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--模态框end-->
+
+
+
+
+</body>
+</html>

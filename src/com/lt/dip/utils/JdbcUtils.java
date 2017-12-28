@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.lt.dip.servlet.DataSource;
-import com.lt.dip.utils.TokenUtils.TokenBean;
 
 public class JdbcUtils {
 
@@ -341,11 +340,12 @@ public class JdbcUtils {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static String query(String dbInfo,String param,String tableName){
+	public static String query(String userId,String dbInfo,String param,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-查询数据("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -404,12 +404,19 @@ public class JdbcUtils {
 									if(value.startsWith("%|")){
 										paramList.add(key+" LIKE '"+value.split("\\|")[1]+"' ");
 									}
+									else if(value.startsWith("in|")){
+										paramList.add(key+" IN "+value.split("\\|")[1]+" ");
+									}
 									else if(value.startsWith("!|")){
 										paramList.add(key+" <> '"+value.split("\\|")[1]+"' ");
 									}
 									else if(value.startsWith(">|")||value.startsWith("<|")||
 											value.startsWith(">=|")||value.startsWith("<=|")){
 										paramList.add(key+value.split("\\|")[0]+" '"+value.split("\\|")[1]+"' ");
+									}
+									else if(value.startsWith("date|")){
+										paramList.add(" unix_timestamp("+key+") <= unix_timestamp('"+value.split("\\|")[1]+" 23:59:59"+"')");
+										paramList.add(" unix_timestamp("+key+") >= unix_timestamp('"+value.split("\\|")[1]+" 00:00:00"+"')");
 									}
 									else{
 										paramList.add(key+"='"+value+"' ");
@@ -463,6 +470,8 @@ public class JdbcUtils {
 					resultJO.put("msg", tempJO);
 					//日志
 					logger.info("执行SQL："+querySql);
+					
+					resultStatus="0";
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					resultJO.put("status", "-1");
@@ -482,160 +491,10 @@ public class JdbcUtils {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", tableName, "查询",resultStatus);
 		return resultJO.toString();
 	}
-	/**
-	 * 查询数据
-	 * @param (dbInfo,param)
-	 * @return
-	 */
-/*	@SuppressWarnings("rawtypes")
-	public static String mulQuery(String dbInfo,String param){
-		Logger logger = Logger.getLogger("DipLogger");
-		JSONObject resultJO=new JSONObject();
-		logger.info("数据库信息："+dbInfo);
-		logger.info("数据库操作-多表查询");
-		if(dbInfo==null||dbInfo.equals("")){
-			resultJO.put("status", "-1");
-			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
-			logger.info("没有传递dbInfo参数,请给出数据源连接信息");
-		} 
-		else{
-			try {
-				//参数tablename:{"page":"1","size":"10","C_ID":"1","order":"order by id desc"}
-				
-				JSONObject dbJO = JSONObject.fromObject(dbInfo);
-				try {
-					String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
-					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
-							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
-							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-					  
-					String countSql = "select count(ID) from datasources where PROJECTS_ID=?,unix_timestamp(C_DT) >= unix_timestamp(?)," +
-							"unix_timestamp(C_DT) <= unix_timestamp(?),unix_timestamp(UP_DT) >= unix_timestamp(?)," +
-							"unix_timestamp(UP_DT) <= unix_timestamp(?),DS_JSON=?,C_ID=?";
-					if(param!=null&&!param.equals("")){
-						
-						JSONObject  allParamJO = JSONObject.fromObject(param);
-						//所有表
-						List<String> tableNameList=new ArrayList<String>();
-						//所有列
-						List<String> allColumnList=new ArrayList<String>();
-						Iterator iterator = allParamJO.keys();
-						while(iterator.hasNext()){
-							String key=(String) iterator.next();
-							JSONObject columnJO=JSONObject.fromObject(selectColumn(dbInfo, key));
-							List<String> columnList=new ArrayList<String>();
-							if(columnJO.getString("status").equals("0")){
-								JSONArray columnJA=JSONArray.fromObject(columnJO.getString("msg"));
-								for(int i=0;i<columnJA.size();i++){
-									JSONObject temp = columnJA.getJSONObject(i);
-									columnList.add(key+"."+temp.getString("column_name")+" AS "+
-											key+"."+temp.getString("column_name"));
-								}
-							}
-							tableNameList.add(key);
-							allColumnList.add(StringUtils.join(columnList,","));
-							
-						}
-						if(tableNameList.size()>0){
-							String countSql = "SELECT COUNT("+tableNameList.get(0)+".*) FROM "+
-									tableNameList.get(0)+" "+tableNameList.get(0)+" ";
-							String querySql = "SELECT "+StringUtils.join(allColumnList,",")+" FROM "+
-									tableNameList.get(0)+" "+tableNameList.get(0)+" ";
-							
-							JSONObject  paramJO = JSONObject.fromObject(param);
-							//动态添加查询参数
-							//StringBuffer paramSb = new StringBuffer(" where ");
-							if(paramJO!=null){
-								
-								List<String> paramList = new ArrayList<String>();
-								Iterator iterator = paramJO.keys();
-								while(iterator.hasNext()){
-									String key=(String) iterator.next();
-									if(!key.equals("order")&&!key.equals("page")&&!key.equals("size")){
-										String value=paramJO.getString(key);
-										if(value.startsWith("%|")){
-											paramList.add(key+" LIKE '"+value.split("\\|")[1]+"' ");
-										}
-										else if(value.startsWith("!|")){
-											paramList.add(key+" <> '"+value.split("\\|")[1]+"' ");
-										}
-										else if(value.startsWith(">|")||value.startsWith("<|")||
-												value.startsWith(">=|")||value.startsWith("<=|")){
-											paramList.add(key+value.split("\\|")[0]+" '"+value.split("\\|")[1]+"' ");
-										}
-										else{
-											paramList.add(key+"='"+value+"' ");
-										}
-										
-									}
-								}
-								if(paramList.size()>0){
-									countSql+=" WHERE "+StringUtils.join(paramList," AND ");
-									querySql+=" WHERE "+StringUtils.join(paramList," AND ");
-								}
-								
-								//排序
-								if(paramJO.containsKey("order")){
-									querySql+=paramJO.getString("order");
-								}
-								else{
-									querySql+=" ORDER BY ID DESC ";
-								}
-								//分页
-								if(paramJO.containsKey("page")&&paramJO.containsKey("size")){
-									String page=paramJO.getString("page");
-									String size=paramJO.getString("size");
-									if(CommonUtils.isNumeric(page)&&CommonUtils.isNumeric(size)){
-										querySql+=" LIMIT "+(Integer.parseInt(page)-1)*Integer.parseInt(size)+" , "+size;
-									}
-								}
-							}
-							
-							
-						}
-						
-						
-						
-						
-						
-						
-						//查询总记录数
-						int count = cp.count(c3p0Key, countSql, null);
-						List<Map<String, String>> resultMap = cp.queryForMap(c3p0Key, querySql, null);
-						JSONObject tempJO = new JSONObject();
-						tempJO.put("num", count);
-						tempJO.put("data", JSONArray.fromObject(resultMap));
-						
-						resultJO.put("status", "0");
-						resultJO.put("msg", tempJO);
-						//日志
-						logger.info("执行SQL："+querySql);
-					}
-					
-					
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					resultJO.put("status", "-1");
-					resultJO.put("msg", "查询失败！");
-					logger.info("查询失败！"+e.getLocalizedMessage());
-					e.printStackTrace();
-				}
-				finally{
-					//cp.removeConnection(c3p0Key, null);
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				resultJO.put("status", "-1");
-				resultJO.put("msg", "数据源连接信息格式错误！");
-				logger.info("数据源连接信息格式错误！");
-				e.printStackTrace();
-			}
-			
-		}
-		return resultJO.toString();
-	}*/
+	
 	
 	/**
 	 * 新增数据
@@ -643,11 +502,12 @@ public class JdbcUtils {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static String insert(String dbInfo,String param,String tableName){
+	public static String insert(String userId,String dbInfo,String param,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-新建数据("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -693,8 +553,10 @@ public class JdbcUtils {
 							resultJO.put("msg", result);
 							//日志
 							logger.info("执行SQL："+insertSql);
-					 
+							
+							resultStatus="0";
 						}
+						
 					}
 					else{
 						resultJO.put("status", "-1");
@@ -721,6 +583,7 @@ public class JdbcUtils {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", tableName, "新建",resultStatus);
 		return resultJO.toString();
 	}
 	/**
@@ -729,11 +592,12 @@ public class JdbcUtils {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static String update(String dbInfo,String param,String condition,String tableName){
+	public static String update(String userId,String dbInfo,String param,String condition,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-修改数据("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -743,6 +607,11 @@ public class JdbcUtils {
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递tableName参数,请给出数据实体名称");
 			logger.info("没有传递tableName参数,请给出数据实体名称");
+		}
+		else if(condition==null||condition.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递condition参数,请给出修改条件");
+			logger.info("没有传递condition参数,请给出修改条件");
 		}
 		else{
 			try {
@@ -791,7 +660,7 @@ public class JdbcUtils {
 								resultJO.put("msg", "更新成功！");
 								//日志
 								logger.info("执行SQL："+updateSql);
-								
+								resultStatus="0";
 							}
 						}
 					}
@@ -820,6 +689,7 @@ public class JdbcUtils {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", tableName, "修改",resultStatus);
 		return resultJO.toString();
 	}
 	
@@ -830,11 +700,12 @@ public class JdbcUtils {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static String delete(String dbInfo,String param,String tableName){
+	public static String delete(String userId,String dbInfo,String param,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-删除数据("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -877,7 +748,7 @@ public class JdbcUtils {
 							  
 							//日志
 							logger.info("执行SQL："+deleteSql);
-					 
+							resultStatus="0";
 						}
 					}
 					else{
@@ -905,6 +776,7 @@ public class JdbcUtils {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", tableName, "修改",resultStatus);
 		return resultJO.toString();
 	}
 	/**
@@ -912,11 +784,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String execute(String dbInfo,String type,String sql){
+	public static String execute(String userId,String dbInfo,String type,String sql){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-执行sql语句");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -960,11 +833,27 @@ public class JdbcUtils {
 							resultJO.put("status", "0");
 							resultJO.put("msg", JSONArray.fromObject(resultMap));
 						}
+						else if(type.equals("alter")){
+							Connection connection =cp.getConnection(c3p0Key);
+							try {
+								connection.setAutoCommit(false);
+								cp.execute(connection, sql, null);
+								connection.commit();//commit the transaction;
+								connection.setAutoCommit(true); 
+								resultJO.put("status", "0");
+								resultJO.put("msg", "执行成功！");
+							} catch (Exception e) {
+								connection.rollback();
+								resultJO.put("status", "-1");
+								resultJO.put("msg", "执行失败！");
+							}
+							
+						}
 						else{
 							resultJO.put("status", "-1");
 							resultJO.put("msg", "无效的操作类型！");
 						}
-							 
+						resultStatus="0"; 
 						
 					}
 					else{
@@ -990,6 +879,7 @@ public class JdbcUtils {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", "SQL", "执行",resultStatus);
 		return resultJO.toString();
 	}
 	
@@ -1021,6 +911,43 @@ public class JdbcUtils {
 			if(resultMap.size()>0){
 				
 				result=resultMap.get(0).get("ds_json");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.info("本地数据源配置错误！");
+			e.printStackTrace();
+		} 
+		
+		return result;
+	}
+	/**
+	 * 根据id查询数据源名称
+	 * @param dbs_id
+	 * @return
+	 */
+	public static String getDbnameByDatid(String dat_id){
+		Logger logger = Logger.getLogger("DipLogger");
+		String result="";
+		try {
+			Properties props = new Properties();  
+			props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
+			JSONObject dbJO=new JSONObject();
+			dbJO.accumulate("dbType", props.getProperty("dbType").trim());
+			dbJO.accumulate("dbUser", props.getProperty("dbUser").trim());
+			dbJO.accumulate("dbPassword", props.getProperty("dbPassword").trim());
+			dbJO.accumulate("dbHost", props.getProperty("dbHost").trim());
+			dbJO.accumulate("dbPort", props.getProperty("dbPort").trim());
+			dbJO.accumulate("dbName", props.getProperty("dbName").trim());
+			
+			String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+			ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+					dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+					dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+			String querySql = "SELECT * FROM SYS_DATASOURCES WHERE ID="+dat_id;
+			List<Map<String, String>> resultMap = cp.queryForMap(c3p0Key, querySql, null);
+			if(resultMap.size()>0){
+				
+				result=resultMap.get(0).get("nm_t");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -1102,10 +1029,12 @@ public class JdbcUtils {
 					String userToken= UUID.randomUUID().toString();
 					resultJO.put("status", "0");
 					resultJO.put("msg", userToken); 
+					resultJO.put("info", JSONObject.fromObject(resultDMap.get(0))); 
 					//存储token 
 					TokenUtils.TokenBean tokenBean =new TokenUtils().new TokenBean();
 					tokenBean.setTimesamp(System.currentTimeMillis()+"");
 					tokenBean.setUsername(username);
+					tokenBean.setUserid(resultDMap.get(0).get("id"));
   					TokenUtils.add(userToken, tokenBean);
   					logger.info("用户"+username+"登录成功！分配Token："+userToken);
 				}
@@ -1128,7 +1057,6 @@ public class JdbcUtils {
 			logger.info("本地数据源配置错误！");
 			e.printStackTrace();
 		} 
-		
 		return resultJO.toString();
 	}
 	
@@ -1139,11 +1067,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String selectColumn(String dbInfo,String tableName){
+	public static String selectColumn(String userId,String dbInfo,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-查询数据表的列("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -1174,7 +1103,7 @@ public class JdbcUtils {
             					"ON A.ID=G.MAJOR_ID AND A.COLID = G.MINOR_ID WHERE D.[NAME] ='"+tableName+"' ORDER BY A.ID,A.COLORDER ";
 			    	}
 			    	else if(dbJO.getString("dbType").equals("mysql")){
-			    		selectSql ="SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"
+			    		selectSql ="SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT,IS_NULLABLE,COLUMN_KEY,EXTRA,COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"
 				        		+tableName+"' AND TABLE_SCHEMA ='"+dbJO.getString("dbName")+"'";
 			    	}
 					
@@ -1183,6 +1112,7 @@ public class JdbcUtils {
 					
 					resultJO.put("status", "0");
 					resultJO.put("msg", JSONArray.fromObject(resultMap));
+					resultStatus="0";
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					resultJO.put("status", "-1");
@@ -1199,6 +1129,7 @@ public class JdbcUtils {
 				e.printStackTrace();
 			}
 		}
+		LogUtils.log(userId, "数据平台", tableName, "查询列",resultStatus);
 		return resultJO.toString();
 	}
 	
@@ -1207,11 +1138,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String selectPKey(String dbInfo,String tableName){
+	public static String selectPKey(String userId,String dbInfo,String tableName){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-查询数据表的主键("+tableName+")");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -1250,6 +1182,7 @@ public class JdbcUtils {
 						
 						resultJO.put("status", "0");
 						resultJO.put("msg", resultMap.get(0).get("column_name"));
+						resultStatus="0";
 					}
 					else{
 						resultJO.put("status", "-1");
@@ -1271,6 +1204,7 @@ public class JdbcUtils {
 				e.printStackTrace();
 			}
 		}
+		LogUtils.log(userId, "数据平台", tableName, "查询主键",resultStatus);
 		return resultJO.toString();
 	}
 	/**
@@ -1278,11 +1212,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String createFK(String dbInfo,String tableNameS,String colS,String tableNameP,String colP){
+	public static String createFK(String userId,String dbInfo,String tableNameS,String colS,String tableNameP,String colP){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-新建外键("+tableNameS+"("+colS+")"+"-"+tableNameP+"("+colP+"))");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -1333,6 +1268,7 @@ public class JdbcUtils {
 					resultJO.put("msg", "添加外键成功！");
 					//日志
 					logger.info("执行SQL："+alterSql);
+					resultStatus="0";
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					resultJO.put("status", "-1");
@@ -1349,6 +1285,7 @@ public class JdbcUtils {
 				e.printStackTrace();
 			}
 		}
+		LogUtils.log(userId, "数据平台", tableNameS+"|"+tableNameP, "新建外键",resultStatus);
 		return resultJO.toString();
 	}
 	/**
@@ -1356,11 +1293,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String backUp(String dbInfo){
+	public static String backUp(String userId,String dbInfo,String dbNm_t){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-备份数据库");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -1388,6 +1326,7 @@ public class JdbcUtils {
 	        				backupDir, fileName, dbJO.getString("dbName"))) {  
 	        			resultJO.put("status", "0");
 	    				resultJO.put("msg", backupDir+"/"+fileName);  
+	    				resultStatus="0";
 	                } else { 
 	                	resultJO.put("status", "-1");
 	    				resultJO.put("msg", "数据库备份失败！");
@@ -1402,6 +1341,7 @@ public class JdbcUtils {
 				e.printStackTrace();
 			}
 		}
+		LogUtils.log(userId, "数据平台", dbNm_t, "备份",resultStatus);
 		return resultJO.toString();
 	}
 	/**
@@ -1409,11 +1349,12 @@ public class JdbcUtils {
 	 * @param (dbInfo,param,tableName)
 	 * @return
 	 */
-	public static String restore(String dbInfo,String filePath){
+	public static String restore(String userId,String dbInfo,String filePath,String dbNm_t){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-恢复数据库");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -1442,6 +1383,7 @@ public class JdbcUtils {
 							filePath, dbJO.getString("dbName"))) {  
 						resultJO.put("status", "0");
 						resultJO.put("msg", "数据库恢复成功！");  
+						resultStatus="0";
 					} else { 
 						resultJO.put("status", "-1");
 						resultJO.put("msg", "数据库恢复失败！");
@@ -1456,6 +1398,7 @@ public class JdbcUtils {
 				e.printStackTrace();
 			}
 		}
+		LogUtils.log(userId, "数据平台", dbNm_t, "恢复",resultStatus);
 		return resultJO.toString();
 	}
 	

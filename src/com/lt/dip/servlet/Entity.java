@@ -3,7 +3,6 @@ package com.lt.dip.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -124,8 +123,9 @@ public class Entity extends HttpServlet {
 		//通过id查询数据源信息
 		//String dbs_id = request.getParameter("dbs_id"); 
 		//String dbInfo = JdbcUtils.getDbInfoByDbsid(dbs_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		String param = request.getParameter("param"); 
-		return JdbcUtils.query(ConfigUtil.getConfig(), param, "SYS_ENTITIES");
+		return JdbcUtils.query(userId,ConfigUtil.getConfig(), param, "SYS_ENTITIES");
 	}
 	/**
 	 * 删除
@@ -139,13 +139,14 @@ public class Entity extends HttpServlet {
 		//String dbs_id = request.getParameter("dbs_id");//获取数据库信息
 		String ent_id = request.getParameter("ent_id");//实体id
 		String dbInfo = JdbcUtils.getDbInfoByEid(ent_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		String tableName = request.getParameter("tableName"); 
 		//删除本地表中记录
 		String localTN="SYS_ENTITIES";
 		JSONObject  paramJO = new JSONObject();
 		paramJO.put("id", ent_id);
 		JSONObject dropResult=JSONObject.fromObject(
-				JdbcUtils.delete(ConfigUtil.getConfig(), paramJO.toString(), localTN));
+				JdbcUtils.delete(userId,ConfigUtil.getConfig(), paramJO.toString(), localTN));
 		if(dropResult.getString("status").equals("0")){
 			//删除数据表
 			result=JdbcUtils.deleteTable(dbInfo, tableName);
@@ -164,6 +165,7 @@ public class Entity extends HttpServlet {
 	public String create(HttpServletRequest request, HttpServletResponse response){
 		String result="";
 		//通过id查询数据源信息
+		String userId = (String) request.getAttribute("userId");//用户id
 		String dat_id = request.getParameter("dat_id"); 
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String param = request.getParameter("param"); 
@@ -190,7 +192,7 @@ public class Entity extends HttpServlet {
 			localParam.put("dat_id", dat_id);
 			String localTN="SYS_ENTITIES";
 			JSONObject insertResult=JSONObject.fromObject(
-					JdbcUtils.insert(ConfigUtil.getConfig(), localParam.toString(), localTN));
+					JdbcUtils.insert(userId,ConfigUtil.getConfig(), localParam.toString(), localTN));
 			////////////////////////
 			if(insertResult.getString("status").equals("0")){
 				result=createResult.toString();

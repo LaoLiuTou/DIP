@@ -30,7 +30,7 @@ public class CORSFilter implements Filter {
 	    //response.setHeader("Access-Control-Allow-Headers","x-requested-with,content-type，requesttype");
         
 	    String uri = request.getServletPath();
-	    if( !uri.startsWith("/Members")){
+	    if( !uri.startsWith("/Members")&&!uri.startsWith("/manager")){
 	    	 String token = request.getHeader("token");
 	        String timesamp = request.getHeader("timesamp");
 	        String sign = request.getHeader("sign");
@@ -42,6 +42,7 @@ public class CORSFilter implements Filter {
 	        	if(tokenBean!=null){
 	        		String tokenTime = tokenBean.getTimesamp();
 		        	String userName=tokenBean.getUsername();
+		        	String userId=tokenBean.getUserid();
 		        	
 		        	if(tokenTime!=null){
 		        		
@@ -57,6 +58,7 @@ public class CORSFilter implements Filter {
 		        			
 		        			//获取保存的用户名
 		        			request.setAttribute("userName", userName); 
+		        			request.setAttribute("userId", userId); 
 		        			 //签名通过
 			                chain.doFilter(request, response);	
 			                //更新token时间

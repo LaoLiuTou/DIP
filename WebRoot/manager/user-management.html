@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--[if lte IE 10]><script type="text/javascript">window.location="a-error/.html";</script><![endif]-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>用户管理</title>
+    <meta name="keywords" content="智慧茸鹿养殖"/>
+    <link rel="stylesheet" type="text/css"  href="css/style.css" />
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/manager/md5.js"></script>
+    <script src="js/manager/config.js"></script>
+    <script src="js/manager/json2.js"></script>
+    <script type="text/javascript">
+        //选中的id
+        var selectId="";
+        $(document).ready(function() {
+
+            //初始化数据
+            querySys_members('');
+
+            $('#addBtn').click(function(){
+                if($('#displayname').val() == ''){
+                    alert('用户名不能为空！');
+                    return false;
+                }
+                else if($('#username').val() == ''){
+                    alert('登录账号不能为空！');
+                    return false;
+                }
+                else if($('#userpwd').val() == ''){
+                    alert('登录密码不能为空！');
+                    return false;
+                }
+                else if($('#userpwd').val() != $('#reuserpwd').val()){
+                    alert('两次输入密码不一致！');
+                    return false;
+                }
+                addSys_members();
+            });
+            $('#delBtn').click(function(){
+                delSys_members();
+            });
+            $('#searchBtn').click(function(){
+                if($('#searchText').val() == ''){
+                    alert('请输入查询条件！');
+                    return false;
+                }
+                querySys_members('%|%'+$('#searchText').val()+'%');
+            });
+
+            $('#data_tbody > tr').click(function(){
+                $('#data_tbody > tr').attr('class','');
+                $(this).attr('class','info');
+                selectId=$(this).attr('id');
+            });
+
+        });
+
+
+    </script>
+
+</head>
+<body>
+
+<!--line1-->
+<div class="topbar">
+    <img class="logo-img fl" src="images/logo.png" />
+    <h1 class="fl">可视化体系应用平台</h1>
+    <div class="userexit-box fr">
+        <a href="#" class="exit-box fr" id="logout" data-toggle="modal" data-target="#logout-dialog">退出</a>
+        <a href="user-management.html" id="loginName" class="username fr">用户名称</a>
+        <a href="datasource.html" class="home-box fr">首页</a>
+    </div>
+</div>
+<div class="clean"></div>
+<!--line2-->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        文件<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">保存</a></li>
+                        <li><a href="#">另存为</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        视图<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">工具栏</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        项目<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">项目设置</a></li>
+                        <li><a href="#">应用设置</a></li>
+                        <li><a href="#">接口查看</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        发布<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">发布</a></li>
+                        <li><a href="#">版本管理</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!--line3-->
+<div class="functionarea clearfix">
+    <a href="#" title="保存" class="btn-keep fl">保存</a>
+    <a href="#" title="删除" class="btn-delete fl">删除</a>
+    <span class="btn-line-divi fl"></span>
+
+    <a href="#" title="项目设置" class="btn-projectsetup fl">项目设置</a>
+    <a href="#" title="应用设置" class="btn-appsetup fl">应用设置</a>
+    <a href="#" title="接口查看" class="btn-interface fl">接口查看</a>
+    <span class="btn-line-divi fl"></span>
+
+    <a href="#" title="控件库" class="btn-assembly fl">控件库</a>
+    <a href="#" title="控件母版" class="btn-ctlmaster fl">控件母版</a>
+    <span class="btn-line-divi fl"></span>
+
+    <span class="pdlr10 fl">添加节点</span>
+    <a href="#" title="向上添加同级节点" class="btn-addsameup fl"></a>
+    <a href="#" title="向下添加同级节点" class="btn-addsamedowm fl"></a>
+    <a href="#" title="添加子节点" class="btn-addnext fl"></a>
+    <span class="btn-line-divi fl"></span>
+
+    <span class="pdlr10 fl">删除节点</span>
+    <a href="#" title="删除节点" class="btn-nodedelete fl"></a>
+
+    <span class="btn-line-divi fl"></span>
+    <span class="pdlr10 fl">移动节点</span>
+    <a href="#" title="向上" class="glyphicon glyphicon-arrow-up fl btn-direction"></a>
+    <a href="#" title="向下" class="glyphicon glyphicon-arrow-down fl btn-direction"></a>
+    <a href="#" title="向左" class="glyphicon glyphicon-arrow-left fl btn-direction"></a>
+    <a href="#" title="向右" class="glyphicon glyphicon-arrow-right fl btn-direction"></a>
+</div>
+<div class="clean"></div>
+<div class="content-out">
+    <div class="content-centerB">
+        <div class="titleboxB">
+            <span class="titleword">用户管理</span>
+            <div class="fr text-right">
+                <form class="form-inline fl mr10">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="searchText"  placeholder="用户姓名">
+                    </div>
+                    <button type="button" id="searchBtn" class="btn btn-primary">搜索</button>
+                </form>
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#interface-edit">添加用户</button>
+                <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#interface-delete">删除用户</button>
+            </div>
+        </div>
+        <div class="part1">
+            <table class="table table-bordered table-hover tab-user-mana">
+                        <thead>
+                            <tr>
+                                <th>用户姓名</th>
+                                <th>登陆账号</th>
+                                <!--<th>登录密码</th>-->
+                                <th>创建时间</th>
+                                <th>创建人</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data_tbody">
+                            <!--<tr class="info">
+                                <td>Amy</td>
+                                <td>Amy@jiubaisoft.com</td>
+                                <td>123456</td>
+                                <td>2017/12/01</td>
+                                <td>admin</td>
+                            </tr>-->
+                        </tbody>
+                    </table>
+        </div>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="interface-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title titlewordC">
+                    添加用户
+                </h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>用户姓名：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="displayname" placeholder="请输入用户名称">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>登陆账号：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="username"  placeholder="请输入账号">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>登录密码：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="userpwd" placeholder="请输入密码">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>确认密码：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="reuserpwd" placeholder="请再次输入密码">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <button type="button" id="addBtn" class="btn btn-primary">
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+<!--模态框分割线2-->
+<div class="modal fade" id="interface-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">删除确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要删除该用户吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="delBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--模态框分割线2-->
+<div class="modal fade" id="logout-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">退出确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要退出吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="logoutBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--模态框end-->
+</body>
+</html>

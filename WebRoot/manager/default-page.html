@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>缺省页</title>
+    <meta name="keywords" content="智慧茸鹿养殖"/>
+    <link rel="stylesheet" type="text/css"  href="css/style.css" />
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            countDown($('#time').text());
+
+            $('#jump').click(function(){
+                window.location.href="datasource.html";
+            });
+        });
+        function countDown(secs){
+            $('#time').text(secs);
+            if(--secs>0){
+                setTimeout("countDown("+secs+")",1000);
+            }
+            else{
+                window.location.href="datasource.html";
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div class="content-out">
+    <div class="default-page-box">
+        <h2>登录成功</h2>
+        <p><span id="time">3</span>秒后将离开本页</p>
+        <div class="col-md-12 mt20">
+            <button type="button" id="jump" class="btn btn-primary blue-btn-p1">立即跳转</button>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

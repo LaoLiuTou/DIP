@@ -184,11 +184,12 @@ public class TranUtil {
 	 * @param (dbInfo,mulParam) mulParam:[{type:insert,tableName:user,param{}},{}]
 	 * @return
 	 */
-	public static String tran(String dbInfo,String mulParam){
+	public static String tran(String userId,String dbInfo,String mulParam){
 		Logger logger = Logger.getLogger("DipLogger");
 		JSONObject resultJO=new JSONObject();
 		logger.info("数据库信息："+dbInfo);
 		logger.info("数据库操作-事务处理多步操作");
+		String resultStatus="-1";//执行结果
 		if(dbInfo==null||dbInfo.equals("")){
 			resultJO.put("status", "-1");
 			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
@@ -262,8 +263,7 @@ public class TranUtil {
 
 							resultJO.put("status", "0");
 							resultJO.put("msg", "事物执行成功！");
-							  
-						 
+							resultStatus="0";
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							connection.rollback();
@@ -299,6 +299,7 @@ public class TranUtil {
 			}
 			
 		}
+		LogUtils.log(userId, "数据平台", "事物", "执行",resultStatus);
 		return resultJO.toString();
 	}
 	

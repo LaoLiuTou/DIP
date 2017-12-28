@@ -1,12 +1,10 @@
 import net.sf.json.JSONObject;
-
-import com.lt.dip.utils.JdbcUtils;
  
 
 
 public class LT {
 
-	@SuppressWarnings("static-access")
+	 
 	public static void main(String[] args) throws Exception {
 		JSONObject dbJO=new JSONObject();
 		dbJO.accumulate("dbType", "mysql");
@@ -16,8 +14,8 @@ public class LT {
 		dbJO.accumulate("dbPort", "3306");
 		dbJO.accumulate("dbName", "test111");
 		
-		JdbcUtils ju= new JdbcUtils();
-		System.out.println(ju.selectPKey(dbJO.toString(), "user3"));
+		//JdbcUtils ju= new JdbcUtils();
+		//System.out.println(ju.selectPKey(dbJO.toString(), "user3"));
 		//System.out.println(ju.getDbInfoByEid("1"));
 /*		JSONObject dbJO=new JSONObject();
 		dbJO.accumulate("dbType", "mysql");

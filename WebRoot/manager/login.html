@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--[if lte IE 10]><script type="text/javascript">window.location="a-error/.html";</script><![endif]-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>登录</title>
+<meta name="keywords" content="智慧茸鹿养殖" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/manager/md5.js"></script>
+<script src="js/manager/config.js"></script>
+<script src="js/manager/json2.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$("#submit").click(function() {
+            if ($('#username').val() == '') {
+                alert('用户名不能为空！');
+                return false;
+            } else if ($('#password').val() == '') {
+                alert('密码不能为空！');
+                return false;
+            }
+			login();
+		});
+		$(document).keyup(function(event) {
+			if (event.keyCode == 13) {
+                if ($('#username').val() == '') {
+                    alert('用户名不能为空！');
+                    return false;
+                } else if ($('#password').val() == '') {
+                    alert('密码不能为空！');
+                    return false;
+                }
+				login();
+			}
+		});
+		function login() {
+			$.ajax({
+				url : url+'Members',
+				type : 'POST',
+				data : {
+					'username' : $('#username').val(),
+					'userpwd' : $('#password').val()
+				},
+				success : function(response) {
+					//console.log(response);
+					var obj = JSON.parse(response);
+					var token = obj['msg'];
+					var userinfo = JSON.stringify(obj['info']);
+					//var timestamp = Date.parse(new Date());
+					//var hash = md5(token + timestamp + sk);
+                    sessionStorage.setItem('username',$('#username').val());
+                    sessionStorage.setItem('userpwd',$('#password').val());
+                    sessionStorage.setItem('userinfo',userinfo);
+                    sessionStorage.setItem('token',token);
+                    saveSys_members();
+                    //window.location.href='default-page.html?backurl='+window.location.href;
+                    window.location.href='default-page.html';
+                },
+				error : function(response) {
+					alert('登录失败！');
+				}
+			});
+
+		}
+
+	});
+</script>
+
+</head>
+<body class="big-bg-login">
+	<div class="login-box-out">
+		<div class="login-left-box fl">
+			<img class="logo-img-login" src="images/logo.png" />
+			<h1 class="white login-title-h1">可视化体系应用平台</h1>
+			<p class="white login-explain">欢迎您登录可视化体系应用平台</p>
+		</div>
+		<div class="login-right-box fl">
+			<div class="col-md-12 mt80">
+				<h4>登录</h4>
+				<form class="form-horizontal" role="form">
+					<div class="form-group mt20">
+						<div class="col-sm-12">
+							<input type="text" class="form-control" id="username" value="testuser"
+								placeholder="请输入帐号">
+						</div>
+					</div>
+					<div class="form-group mt20">
+						<div class="col-sm-12">
+							<input type="text" class="form-control" id="password" value="123456"
+								placeholder="请输入密码">
+						</div>
+					</div>
+					<div class="form-group mt20 login-btn-box">
+						<div class="col-sm-12">
+							<button type="button" id="submit"
+								class="btn btn-primary blue-btn-p1 col-md-12">立即登录</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+
+		</div>
+	</div>
+
+</body>
+</html>

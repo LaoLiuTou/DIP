@@ -123,7 +123,8 @@ public class DbService extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String param = request.getParameter("param"); 
 		String tableName = request.getParameter("tableName"); 
-		return JdbcUtils.query(dbInfo, param, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.query(userId,dbInfo, param, tableName);
 	}
 	/**
 	 * 插入数据
@@ -137,7 +138,8 @@ public class DbService extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String param = request.getParameter("param"); 
 		String tableName = request.getParameter("tableName"); 
-		return JdbcUtils.insert(dbInfo, param, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.insert(userId,dbInfo, param, tableName);
 	}
 	
 	/**
@@ -153,7 +155,8 @@ public class DbService extends HttpServlet {
 		String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName"); 
-		return JdbcUtils.update(dbInfo, param,condition, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.update(userId,dbInfo, param,condition, tableName);
 	}
 	/**
 	 * 删除数据
@@ -168,7 +171,8 @@ public class DbService extends HttpServlet {
 		//String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");
-		return JdbcUtils.delete(dbInfo,condition, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.delete(userId,dbInfo,condition, tableName);
 	}
 	/**
 	 * 获取数据表的列
@@ -181,7 +185,8 @@ public class DbService extends HttpServlet {
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String tableName = request.getParameter("tableName");
-		return JdbcUtils.selectColumn(dbInfo, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.selectColumn(userId,dbInfo, tableName);
 	}
 	/**
 	 * 获取数据表的主键
@@ -194,7 +199,8 @@ public class DbService extends HttpServlet {
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String tableName = request.getParameter("tableName");
-		return JdbcUtils.selectPKey(dbInfo, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.selectPKey(userId,dbInfo, tableName);
 	}
 	/**
 	 * 事物处理多步操作
@@ -207,7 +213,8 @@ public class DbService extends HttpServlet {
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String mulParam = request.getParameter("mulParam"); 
-		return TranUtil.tran(dbInfo, mulParam);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return TranUtil.tran(userId,dbInfo, mulParam);
 	}
 	/**
 	 * 执行sql
@@ -220,7 +227,8 @@ public class DbService extends HttpServlet {
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String type = request.getParameter("type"); 
 		String sql = request.getParameter("sql"); 
-		return JdbcUtils.execute(dbInfo, type,sql);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.execute(userId,dbInfo, type,sql);
 	}
 	
 	/**
@@ -235,8 +243,9 @@ public class DbService extends HttpServlet {
 		String tableNameS = request.getParameter("tableNameS"); 
 		String tableNameP = request.getParameter("tableNameP"); 
 		String colS = request.getParameter("colS"); 
-		String colP = request.getParameter("colP"); 
-		return JdbcUtils.createFK(dbInfo, tableNameS,colS,tableNameP,colP);
+		String colP = request.getParameter("colP");
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.createFK(userId,dbInfo, tableNameS,colS,tableNameP,colP);
 	}
 	
 	
@@ -251,7 +260,9 @@ public class DbService extends HttpServlet {
 		
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
-		return JdbcUtils.backUp(dbInfo);
+		String dbNm_t = JdbcUtils.getDbnameByDatid(dat_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.backUp(userId,dbInfo,dbNm_t);
 	}
 	/**
 	 * 恢复
@@ -264,7 +275,9 @@ public class DbService extends HttpServlet {
 		String dat_id = request.getParameter("dat_id");//获取数据库信息
 		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
 		String filePath = request.getParameter("file_path");//备份文件路径
-		return JdbcUtils.restore(dbInfo,filePath);
+		String dbNm_t = JdbcUtils.getDbnameByDatid(dat_id);//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.restore(userId,dbInfo,filePath,dbNm_t);
 	}
 	
 	/**

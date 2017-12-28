@@ -3,7 +3,6 @@ package com.lt.dip.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -122,7 +121,8 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.query(ConfigUtil.getConfig(), param, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.query(userId,ConfigUtil.getConfig(), param, tableName);
 	}
 	/**
 	 * 插入数据
@@ -134,7 +134,8 @@ public class DipService extends HttpServlet {
 		
 		String param = request.getParameter("param");//获取数据库信息
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.insert(ConfigUtil.getConfig(), param, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.insert(userId,ConfigUtil.getConfig(), param, tableName);
 	}
 	
 	/**
@@ -148,7 +149,8 @@ public class DipService extends HttpServlet {
 		String param = request.getParameter("param"); 
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.update(ConfigUtil.getConfig(), param,condition, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.update(userId,ConfigUtil.getConfig(), param,condition, tableName);
 	}
 	/**
 	 * 删除数据
@@ -160,9 +162,21 @@ public class DipService extends HttpServlet {
 		
 		String condition = request.getParameter("condition"); 
 		String tableName = request.getParameter("tableName");//获取数据库信息
-		return JdbcUtils.delete(ConfigUtil.getConfig(),condition, tableName);
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.delete(userId,ConfigUtil.getConfig(),condition, tableName);
 	}
-	
+	/**
+	 * 执行sql
+	 * @param request(dbInfo,type,sql)
+	 * @param response
+	 * @return
+	 */
+	public String execute(HttpServletRequest request, HttpServletResponse response){
+		String type = request.getParameter("type"); 
+		String sql = request.getParameter("sql"); 
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.execute(userId,ConfigUtil.getConfig(), type,sql);
+	}
 	/**
 	 * Initialization of the servlet. <br>
 	 *
