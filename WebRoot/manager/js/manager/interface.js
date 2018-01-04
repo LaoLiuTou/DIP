@@ -111,6 +111,8 @@ $(document).ready(function() {
         if(sys_user!=null){
             $('#if_mem_id').val(JSON.parse(sys_user)[currentInterface.mem_id]);
         }
+        //title
+        $('#interfaceTitle').text('项目('+currentInterface.type+')');
     });
 
     //接口修改按钮

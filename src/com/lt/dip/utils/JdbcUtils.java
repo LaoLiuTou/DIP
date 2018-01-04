@@ -587,6 +587,109 @@ public class JdbcUtils {
 		return resultJO.toString();
 	}
 	/**
+	 * 批量新建数据
+	 * @param (dbInfo,param,tableName)
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public static String mulInsert(String userId,String dbInfo,String param,String tableName){
+		Logger logger = Logger.getLogger("DipLogger");
+		JSONObject resultJO=new JSONObject();
+		logger.info("数据库信息："+dbInfo);
+		logger.info("数据库操作-新建数据("+tableName+")");
+		String resultStatus="-1";//执行结果
+		if(dbInfo==null||dbInfo.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递dbInfo参数,请给出数据源连接信息");
+			logger.info("没有传递dbInfo参数,请给出数据源连接信息");
+		}
+		else if(tableName==null||tableName.equals("")){
+			resultJO.put("status", "-1");
+			resultJO.put("msg", "没有传递tableName参数,请给出数据实体名称");
+			logger.info("没有传递tableName参数,请给出数据实体名称");
+		}
+		else{
+			try {
+				JSONObject dbJO = JSONObject.fromObject(dbInfo);
+				try {
+					String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+					
+					String mulInsertSql = "";
+					/*INSERT INTO tbl_name (col1,col2) VALUES(15,col1*2); */
+					if(param!=null&&!param.equals("")){
+						JSONArray  paramJA = JSONArray.fromObject(param);
+						for(int i=0;i<paramJA.size();i++){
+							String insertSql = "INSERT INTO "+tableName+" ";
+							JSONObject  paramJO = (JSONObject) paramJA.get(i);
+							//动态添加查询参数
+							if(paramJO!=null){
+								List<String> colList = new ArrayList<String>();
+								List<String> valueList = new ArrayList<String>();
+								Iterator iterator = paramJO.keys();
+								while(iterator.hasNext()){
+									String key=(String) iterator.next();
+									String value=paramJO.getString(key);
+									colList.add(key);
+									valueList.add("'"+value+"'");
+								}
+								if(colList.size()>0&&valueList.size()>0){
+									insertSql+=" ("+StringUtils.join(colList,",")+") ";
+									insertSql+=" VALUES ("+StringUtils.join(valueList,",")+") ";
+								}
+								
+							}
+							mulInsertSql+=insertSql+";";
+						}
+						Connection connection =cp.getConnection(c3p0Key);
+						try {
+							connection.setAutoCommit(false);
+							cp.execute(connection, mulInsertSql, null);
+							connection.commit();//commit the transaction;
+							connection.setAutoCommit(true); 
+							resultJO.put("status", "0");
+							resultJO.put("msg", "执行成功！");
+							//日志
+							logger.info("执行SQL："+mulInsertSql);
+							resultStatus="0";
+						} catch (Exception e) {
+							connection.rollback();
+							resultJO.put("status", "-1");
+							resultJO.put("msg", "执行失败！");
+						}
+						 
+					}
+					else{
+						resultJO.put("status", "-1");
+						resultJO.put("msg", "参数格式不正确！");
+						logger.info("新建失败！");
+					}
+					
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					resultJO.put("status", "-1");
+					resultJO.put("msg", "新建失败！");
+					logger.info("新建失败！"+e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+				finally{
+					//cp.removeConnection(c3p0Key, null);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				resultJO.put("status", "-1");
+				resultJO.put("msg", "数据源连接信息格式错误！");
+				logger.info("数据源连接信息格式错误！");
+				e.printStackTrace();
+			}
+			
+		}
+		LogUtils.log(userId, "数据平台", tableName, "新建",resultStatus);
+		return resultJO.toString();
+	}
+	/**
 	 * 更新数据
 	 * @param (dbInfo,param,condition,tableName)
 	 * @return
@@ -829,7 +932,7 @@ public class JdbcUtils {
 							List<Map<String, String>> resultMap = cp.queryForMap(c3p0Key, sql, null);
 							//JSONObject tempJO = new JSONObject();
 							//tempJO.put("data", JSONArray.fromObject(resultMap));
-							
+							logger.info("查询数据"+resultMap.size()+"条。");
 							resultJO.put("status", "0");
 							resultJO.put("msg", JSONArray.fromObject(resultMap));
 						}
@@ -1265,7 +1368,7 @@ public class JdbcUtils {
 					
 					cp.execute(c3p0Key, alterSql,null);
 					resultJO.put("status", "0");
-					resultJO.put("msg", "添加外键成功！");
+					resultJO.put("msg", fkName);
 					//日志
 					logger.info("执行SQL："+alterSql);
 					resultStatus="0";

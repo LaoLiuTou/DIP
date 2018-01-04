@@ -143,6 +143,22 @@ public class DbService extends HttpServlet {
 	}
 	
 	/**
+	 * 批量插入数据
+	 * @param request(dbInfo,param,tableName)
+	 * @param response
+	 * @return
+	 */
+	public String mulInsert(HttpServletRequest request, HttpServletResponse response){
+		
+		String dat_id = request.getParameter("dat_id");//获取数据库信息
+		String dbInfo = JdbcUtils.getDbInfoByDatid(dat_id);//获取数据库信息
+		String param = request.getParameter("param"); 
+		String tableName = request.getParameter("tableName"); 
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.mulInsert(userId,dbInfo, param, tableName);
+	}
+	
+	/**
 	 * 修改数据
 	 * @param request(dbInfo,param,tableName)
 	 * @param response

@@ -50,6 +50,17 @@ $(document).ready(function() {
     $('#entityDelBtn').click(function(){
         delSys_entities();
     });
+    //新建
+    $('#entityAddBtn').click(function(){
+        if($('#entity_nm_t').val()==''){
+            alert('实体名称不能为空！');
+            return false;
+        }
+        var dat_id=datasourceData[datasourceIndex].id;
+        var param='[{"cn":"id","tp":"int","lt":"4","pk":"Y","nn":"Y","ai":"Y","cm":"默认主键"}]';
+         addSys_entities(dat_id,param);
+     });
+
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////数据源操作///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////

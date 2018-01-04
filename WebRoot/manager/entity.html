@@ -54,32 +54,7 @@
     </div>
 </div>
 <div class="clean"></div>
-<!--line2-->
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div>
-            <ul class="nav navbar-nav">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        文件<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">保存</a></li>
-                        <li><a href="#">另存为</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        视图<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">工具栏</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+
 <!--line3-->
 <div class="functionarea clearfix">
     <a href="#" title="保存" class="btn-keep fl" data-toggle="modal" data-target="#entity-update" id="save">保存</a>
@@ -288,8 +263,8 @@
                         </th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
+                    <tbody id="relation_tbody">
+                    <!--<tr>
                         <td>茸鹿管理</td>
                         <td><i class="glyphicon glyphicon-link"></i></td>
                         <td>鹿场管理</td>
@@ -306,7 +281,7 @@
                         <td><i class="glyphicon glyphicon-link"></i></td>
                         <td>鹿场管理</td>
                         <td>N:1</td>
-                    </tr>
+                    </tr>-->
                     </tbody>
                 </table>
 
@@ -495,8 +470,9 @@
                         <th class="text-left" colspan="5"><h4>关系</h4></th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr class="info">
+                    <tbody id="r_tbody">
+
+                    <!--<tr class="info">
                         <td>茸鹿管理<span class="blue ml20">鹿场ID</span></td>
                         <td><i class="glyphicon glyphicon-link"></i></td>
                         <td>鹿场管理<span class="blue ml20">鹿场ID</span></td>
@@ -522,54 +498,27 @@
                         <td>
                             <button title="删除" class="glyphicon glyphicon-trash fr mr10 titlebox-btn3" data-toggle="modal" data-target="#entity-rela-set"></button>
                         </td>
-                    </tr>
+                    </tr>-->
                     </tbody>
                 </table>
                 <!--当前实体&其他实体-->
                 <div class="col-md-12 text-right mb5">
-                    <a type="button" class="btn btn-primary">新建关系</a>
+                    <a type="button" class="btn btn-primary" id="rel_addBtn">新建关系</a>
                 </div>
                 <table class="table table-bordered data-source-table">
                     <tr>
                         <td>
                             <h4>当前实体</h4>
                             <div class="st_tree_popup data-source-popupbox">
+                                <input class="form-control" id="select_col" type="text"  style="display: none;">
                                 <ul>
-                                    <li><a href="#">茸鹿管理</a></li>
-                                    <ul show="true">
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
-                                        <li><a href="#">品种名称</a></li>
-                                        <li><a href="#">品种代码</a></li>
+                                    <li><a href="#" id="r_e_title">茸鹿管理</a></li>
+                                    <ul show="true" id="r_c_li">
+
                                     </ul>
                                 </ul>
                             </div>
+
                         </td>
                         <td>
                             <h4>其他实体</h4>
@@ -578,7 +527,7 @@
                                 <dd>
                                     <form role="form">
                                         <div class="form-group">
-                                            <select class="form-control">
+                                            <select class="form-control" id="r_e_select">
                                                 <option>请选择实体</option>
                                             </select>
                                         </div>
@@ -588,8 +537,8 @@
                                 <dd>
                                     <form role="form">
                                         <div class="form-group">
-                                            <select class="form-control">
-                                                <option>鹿场ID</option>
+                                            <select class="form-control" id="r_c_select">
+                                                <!--<option>鹿场ID</option>-->
                                             </select>
                                         </div>
                                     </form>
@@ -602,10 +551,25 @@
                                 <dd>
                                     <form role="form">
                                         <div class="form-group">
-                                            <select class="form-control">
-                                                <option>N:1</option>
+                                            <select class="form-control" id="select_rel">
+                                                <option value="1:1">1:1</option>
+                                                <option value="1:n">1:n</option>
+                                                <option value="n:1">n:1</option>
+                                                <option value="n:n">n:n</option>
                                             </select>
-                                            <label class="mt5"><input type="checkbox">是否生成外键</label>
+                                            <label class="mt5" id="f_k_label" ><input type="checkbox" id="f_k_cb">是否生成外键</label>
+                                        </div>
+                                    </form>
+                                </dd>
+                            </dl>
+                            <dl class="dl-horizontal" id="r_t_dl" style="display: none;">
+                                <dt>中间表名称：</dt>
+                                <dd>
+                                    <form role="form">
+                                        <div class="form-group">
+                                            <select class="form-control" id="r_t_name">
+
+                                            </select>
                                         </div>
                                     </form>
                                 </dd>
@@ -747,6 +711,22 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button type="button" id="logoutBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--模态框分割线2-->
+<div class="modal fade" id="entity-rela-del" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">删除确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要删除吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="rel_delBtn" class="btn btn-primary">确定</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->

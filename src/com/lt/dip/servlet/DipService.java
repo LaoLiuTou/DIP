@@ -137,6 +137,19 @@ public class DipService extends HttpServlet {
 		String userId = (String) request.getAttribute("userId");//用户id
 		return JdbcUtils.insert(userId,ConfigUtil.getConfig(), param, tableName);
 	}
+	/**
+	 * 批量插入数据
+	 * @param request(dbInfo,param,tableName)
+	 * @param response
+	 * @return
+	 */
+	public String mulInsert(HttpServletRequest request, HttpServletResponse response){
+		
+		String param = request.getParameter("param");//获取数据库信息
+		String tableName = request.getParameter("tableName");//获取数据库信息
+		String userId = (String) request.getAttribute("userId");//用户id
+		return JdbcUtils.mulInsert(userId,ConfigUtil.getConfig(), param, tableName);
+	}
 	
 	/**
 	 * 修改数据

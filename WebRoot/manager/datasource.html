@@ -53,32 +53,7 @@
     </div>
 </div>
 <div class="clean"></div>
-<!--line2-->
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div>
-            <ul class="nav navbar-nav">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        文件<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">保存</a></li>
-                        <li><a href="#">另存为</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        视图<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">工具栏</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+
 <!--line3-->
 <div class="functionarea clearfix">
     <a href="#" title="保存" class="btn-keep fl" data-toggle="modal" data-target="#datasources-update" id="save">保存</a>
@@ -301,7 +276,7 @@
                     <dd>
                         <form role="form">
                             <div class="form-group">
-                                <input type="text" class="form-control"  placeholder="请输入名称">
+                                <input type="text" class="form-control"  placeholder="请输入名称" id="entity_nm_t">
                             </div>
                         </form>
                     </dd>
@@ -311,7 +286,7 @@
                     <dd>
                         <form role="form">
                             <div class="form-group">
-                                <textarea class="form-control textarea-line" rows="3"></textarea>
+                                <textarea class="form-control textarea-line" rows="3" id="entity_desc_t"></textarea>
                             </div>
                         </form>
                     </dd>
@@ -320,7 +295,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消
                 </button>
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary" id="entityAddBtn">
                     确定
                 </button>
             </div>

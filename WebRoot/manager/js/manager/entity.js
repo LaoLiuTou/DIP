@@ -13,6 +13,9 @@ var entityData;
 //选中的实体column
 var columnIndex;
 var columnData;
+//选中的实体关系rel
+var relIndex;
+var relData;
 //选中的id
 $(document).ready(function() {
     //切换参数和关系
@@ -50,6 +53,112 @@ $(document).ready(function() {
         $('#save').attr('data-target', '');
         $('#delete').attr('data-target', '')
         $('#e_title').text('实体('+entityData[entityIndex].nm_t+')');
+        var c_e_id=entityData[entityIndex].id;
+        //alert(c_e_id);
+        relation_querySys_entities(c_e_id);
+        querySys_relations(c_e_id);
+    });
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////实体关系///////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    //实体关系切换
+    $('#r_e_select').change(function(){
+        relation_querySys_entities_col($(this).find('option:selected').text(),null);
+        $('#r_t_name').html($('#r_e_select').html());
+        $('#r_t_name option').each(function(){
+            if($('#r_e_select').val()!=''&&$(this).text()==$('#r_e_select').find('option:selected').text()){
+                $(this).remove();
+            }
+        });
+    });
+    //
+    $('#r_tbody').on('click','tr',function(){
+        $('#r_tbody>tr').attr('class','');
+        $(this).attr('class','info');
+        relIndex=$(this).attr('index');
+        var rel_json=JSON.parse(relData[$(this).attr('index')].relation_json);
+        $('#r_c_li>li').each(function(){
+            if($(this).attr('column_name')==rel_json[entityData[entityIndex].id]){
+                $(this).click();
+            }
+        });
+        if(entityData[entityIndex].id==relData[$(this).attr('index')].ent1_id){
+            $('#r_e_select').val(relData[$(this).attr('index')].ent2_id);
+
+            $('#select_rel').val(rel_json['rel']);
+        }
+        else{
+            $('#r_e_select').val(relData[$(this).attr('index')].ent1_id);
+            $('#select_rel').val(rel_json['rel'].split('').reverse().join(''));
+
+        }
+
+        //中间表
+        $('#r_t_name').val(rel_json['rel_table']);
+        //外键
+        if(rel_json['fk']=='n'){
+            $('#f_k_cb').prop('checked',false);
+        }
+        else{
+            $('#f_k_cb').prop('checked',true);
+        }
+        if(relData[$(this).attr('index')].ent1_id==entityData[entityIndex].id){
+
+            relation_querySys_entities_col(getEntityNameById(relData[$(this).attr('index')].ent2_id),rel_json[relData[$(this).attr('index')].ent2_id]);
+        }
+        else{
+            relation_querySys_entities_col(getEntityNameById(relData[$(this).attr('index')].ent1_id),rel_json[relData[$(this).attr('index')].ent1_id]);
+
+        }
+
+        $('#select_rel').trigger("change");
+
+    });
+    $('#r_c_li').on('click','li',function(){
+        $('#r_c_li').find('a').css('color','#119cfa');
+        $(this).find('a').css('color','#23527c');
+        $('#select_col').val(columnData[$(this).attr('index')].column_name);
+    });
+    $('#select_rel').change(function(){
+
+        if($('#select_rel').val()=="n:n"){
+            $('#r_t_dl').show();
+            //$('#r_t_name').val(entityData[entityIndex].nm_t+'_'+$('#r_e_select').find('option:selected').text()+"_rel");
+            //$('#f_k_label').hide();
+        }
+        else if($('#select_rel').val()=="1:n"||$('#select_rel').val()=="1:1"){
+            $('#r_t_dl').hide();
+            $('#r_t_name').val('');
+            //$('#f_k_label').show();
+        }
+        else{
+            $('#r_t_dl').hide();
+            $('#r_t_name').val('');
+            //$('#f_k_label').hide();
+        }
+    });
+    $('#rel_addBtn').click(function(){
+        if($('#select_col').val()==''){
+            alert('请选择当前实体属性');
+            return false;
+        }
+        if($('#r_e_select').val()==''){
+            alert('请选择其他实体');
+            return false;
+        }
+        var fkFlag='n';
+        if ($('#f_k_cb').is(':checked')) {
+            fkFlag='y';
+        }
+
+        addSys_relations(entityData[entityIndex].id,$('#select_col').val(),$('#r_e_select').val(),
+            $('#r_c_select').find('option:selected').text(),$('#select_rel').val(),$('#r_t_name').val(),fkFlag);
+
+    });
+    $('#rel_delBtn').click(function(){
+        delSys_relations(relData[relIndex].id);
+
     });
 
     ////////////////////////////////////////////////////////////////////////////
@@ -92,8 +201,7 @@ $(document).ready(function() {
             $('#extra_y').prop("checked",'checked');
         }
 
-        var userinfo = JSON.parse(sessionStorage.getItem('sys_user'));
-        $('#creater').val(userinfo[entityData[entityIndex].id]);
+
 
         ovalue=$('#column_name').val()+$('#column_comment').val()+$('#column_length').val()+
             $('#column_type').val()+$('#column_default').val()+$('input[name="is_nullable"]:checked').val()+

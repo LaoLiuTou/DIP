@@ -494,8 +494,11 @@ function addSys_entities(dat_id,param){
     //'param':'[{"cn":"userid","tp":"int","lt":"4","pk":"Y","nn":"Y","ai":"Y","cm":"用户id"},{"cn":"username","tp":"varchar","lt":"20","nn":"Y","cm":"用户名"},{"cn":"password","tp":"varchar","lt":"30","nn":"Y","cm":"密码"}]'},
 
     var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
-    var bodyParam={'method':'create','dat_id':dat_id,'mem_id':userinfo['id'],'status':$('#entity_status').val(),
+    /*var bodyParam={'method':'create','dat_id':dat_id,'mem_id':userinfo['id'],'status':$('#entity_status').val(),
         'nm_t':$('#entity_nm_t').val(),'desc_t':$('#entity_desc_t').val(),'code_t':$('#entity_code_t').val(),
+        'param':param};*/
+    var bodyParam={'method':'create','dat_id':dat_id,'mem_id':userinfo['id'],'status':'1',
+        'nm_t':$('#entity_nm_t').val(),'desc_t':$('#entity_desc_t').val(),
         'param':param};
     var httpR = new createHttpR(url+'Entity','post','text',bodyParam,'callBack');
     httpR.HttpRequest(function(response){
@@ -538,7 +541,9 @@ function  querySys_entities_col () {
     var currentEntity=entityData[entityIndex];
     //{'method':'column','dat_id':'1','tableName':'user3'},
 
+
     $('#columnTbody').html('');
+    $('#r_c_li').html('');
     var bodyParam={'method':'column','tableName':currentEntity.nm_t,'dat_id':currentDatasource.id};
     var httpR = new createHttpR(url+'DbService','post','text',bodyParam,'callBack');
     httpR.HttpRequest(function(response){
@@ -550,11 +555,14 @@ function  querySys_entities_col () {
             //保存数据到变量
             columnData=msg;
 
-            var html='';
+            $('#r_e_title').text(currentEntity.nm_t);
+            var html='',r_html='';
             for(var o in data){
                 html+='<tr index='+o+'><td>'+data[o].column_name+'</td><td>'+data[o].column_type+'</td></tr>';
+                r_html+='<li index='+o+' column_name='+data[o].column_name+'><a href="#">'+data[o].column_name+' ('+data[o].column_type+')</a></li>';
             }
             $('#columnTbody').html(html);
+            $('#r_c_li').html(r_html);
         }
     });
 }
@@ -566,10 +574,143 @@ function  querySys_entities_col () {
  * 查询日志
  * @param info
  */
-function  querySys_sqllogs () {
-    $('#interfaceDiv').html('');
-    var param='{"order":"order by id desc"}';
+function  querySys_sqllogs (currentPage,pageSize) {
+    $('#logTbody').html('');
+    var param='{"page":"'+currentPage+'","size":"'+pageSize+'","order":"order by id desc"';
+    if($('#searchDate').val()!=''){
+        param+=',"op_dt":"date|'+$('#searchDate').val()+'"';
+    }
+
+    if($('#objects').val()!=''){
+        param+=',"objects":"'+$('#objects').val()+'"';
+    }
+
+    param+='}';
+
     var bodyParam={'method':'query','tableName':'sys_sqllogs','param':param};
+    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+    httpR.HttpRequest(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+
+        if(status=='0'){
+            var data=msg['data'];
+            //保存数据到变量
+            interfaceData=msg['data'];
+            var html='';
+            var userinfo = JSON.parse(sessionStorage.getItem('sys_user'));
+            for(var o in data){
+                html+='<tr index='+o+'>\n' +
+                    '<td>'+data[o].planame+'</td>\n' +
+                    '<td>'+userinfo[data[o].mem_id]+'</td>\n' +
+                    '<td>'+data[o].objects+'</td>\n' +
+                    '<td>'+data[o].operations+'</td>\n' +
+                    '<td>'+data[o].op_dt+'</td>\n' +
+                    '</tr>';
+            }
+            $('#logTbody').html(html);
+
+
+            var num=msg['num'];
+            var pageHtml='';
+            var totalPage=0;
+            if(num%pageSize==0){
+                totalPage=num/pageSize;
+            }
+            else{
+                totalPage=Math.ceil(num/pageSize);
+            }
+            //alert(num%pageSize+'---'+num/pageSize+'---'+totalPage);
+            if(currentPage==1){
+                pageHtml+='<li class="disabled"><a href="#">首页</a></li>';
+                pageHtml+='<li class="disabled"><a href="#">上一页</a></li>';
+            }
+            else{
+                pageHtml+='<li ><a href="#" class="pageBtn" index="1">首页</a></li>';
+                pageHtml+='<li ><a href="#" class="prevBtn" index="">上一页</a></li>';
+            }
+            if(totalPage<=7){
+                for(var i=1;i<Number(totalPage)+1;i++){
+                    if(currentPage==i){
+                        pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                    }
+                    else{
+                        pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                    }
+                }
+            }
+            else{
+                if(currentPage<=3){
+                    for(var i=1;i<=7;i++){
+                        if(currentPage==i){
+                            pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                        }
+                        else{
+                            pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                        }
+                    }
+                }
+                else if(totalPage-currentPage<3){
+                    for(var i=Number(totalPage)-7;i<=totalPage;i++){
+                        if(currentPage==i){
+                            pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                        }
+                        else{
+                            pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                        }
+                    }
+                }
+                else{
+                    for(var i=Number(currentPage)-3;i<=Number(currentPage)+3;i++){
+                        if(currentPage==i){
+                            pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
+                        }
+                        else{
+                            pageHtml+='<li><a href="#" class="pageBtn" index="'+i+'">'+i+'</a></li>';
+                        }
+                    }
+                }
+
+
+            }
+
+            if(currentPage==totalPage){
+                pageHtml+='<li class="disabled"><a href="#">下一页</a></li>';
+                pageHtml+='<li class="disabled"><a href="#">尾页</a></li>';
+            }
+            else{
+                pageHtml+='<li class="nextBtn" index=""><a href="#">下一页</a></li>';
+                pageHtml+='<li class="pageBtn" index="'+totalPage+'"><a href="#">尾页</a></li>';
+            }
+            pageHtml+='<li><input type="text" id="jumpPageText" class="paging-inpbox form-control"></li>\n' +
+                '<li><button type="button" id="jumpBtn" class="paging-btnbox btn btn-primary">跳转</button></li>\n' +
+                '<li><span class="number-of-pages">共'+totalPage+'页</span></li>';
+
+            $('#pageUl').html(pageHtml);
+
+
+
+        }
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////关系管理////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 查询实体关系
+ * @param e_id
+ */
+function  relation_querySys_entities (e_id) {
+    var currentDatasource=datasourceData[datasourceIndex];
+    $('#r_e_select').html('');
+    $('#r_c_select').html('');
+    $('#r_t_name').html('');
+
+    var param='{"order":"order by id desc","dat_id":"'+currentDatasource.id+'"}';
+    var bodyParam={'method':'query','tableName':'sys_entities','param':param};
     var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
     httpR.HttpRequest(function(response){
         var obj = JSON.parse(response);
@@ -578,18 +719,219 @@ function  querySys_sqllogs () {
         if(status=='0'){
             var data=msg['data'];
             //保存数据到变量
-            interfaceData=msg['data'];
+            //entityData=msg['data'];
+            var html='<option value="">请选择实体</option>';
+            var rel_html='<option value="">请选择中间表</option>';
+
+            for(var o in data){
+                if(e_id!=data[o].id){
+                    html+='<option value="'+data[o].id+'">'+data[o].nm_t+'</option>';
+                    rel_html+='<option value="'+data[o].id+'">'+data[o].nm_t+'</option>';
+                }
+            }
+
+            $('#r_e_select').html(html);
+            $('#r_t_name').html(rel_html);
+
+        }
+    });
+}
+/**
+ * 实体属性
+ * @param info
+ */
+function   relation_querySys_entities_col (e_nm_t,c_name) {
+    var currentDatasource=datasourceData[datasourceIndex];
+
+    $('#r_c_select').html('');
+    var bodyParam={'method':'column','tableName':e_nm_t,'dat_id':currentDatasource.id};
+    var httpR = new createHttpR(url+'DbService','post','text',bodyParam,'callBack');
+    httpR.HttpRequest(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+        if(status=='0'){
+            var data=msg;
+            //保存数据到变量
+            //columnData=msg;
             var html='';
             for(var o in data){
-                html+='<a index='+o+' class="list-group-item"><span class="glyphicon glyphicon-modal-window mr10"></span>'+data[o].nm_t+'</a>';
+                if(c_name==data[o].column_name){
+                    html+='<option value="'+o+'" selected="selected">'+data[o].column_name+'</option>';
+                }
+                else{
+                    html+='<option value="'+o+'">'+data[o].column_name+'</option>';
+                }
             }
-            $('#interfaceDiv').html(html);
+            $('#r_c_select').html(html);
+
+
+
         }
     });
 }
 
+/**
+ * 查询关系
+ */
+function  querySys_relations (e_id) {
+    $('#r_tbody').html('');
+    $('#relation_tbody').html('');
+    //var param='{"order":"order by id desc","ent1_id":"'+e_id+'"}';
+    //var bodyParam={'method':'query','tableName':'sys_relations','param':param};
+    var param="select * from  sys_relations where (ENT1_ID='"+e_id+"' or ENT2_ID='"+e_id+"')";
+    var bodyParam={'method':'execute','type':'select','sql':param};
+    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+    httpR.HttpRequest(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+        if(status=='0'){
+            var data=msg;
+            //保存数据到变量
+            relData=msg;
+
+            var html='',r_html='';
+            for(var o in data){
+                var r_json=JSON.parse(data[o].relation_json);
+                if(data[o].ent1_id==entityData[entityIndex].id){
+                    html+='<tr index='+o+'>\n' +
+                        '<td>'+getEntityNameById(data[o].ent1_id)+'<span class="blue ml20">'+r_json[data[o].ent1_id]+'</span></td>\n' +
+                        '<td><i class="glyphicon glyphicon-link"></i></td>\n' +
+                        '<td>'+getEntityNameById(data[o].ent2_id)+'<span class="blue ml20">'+r_json[data[o].ent2_id]+'</span></td>\n' +
+                        '<td>'+r_json['rel']+'</td>\n' +
+                        '<td>\n' +
+                        '<button title="删除" index='+o+' class="glyphicon glyphicon-trash fr mr10 titlebox-btn3" data-toggle="modal" data-target="#entity-rela-del"></button>\n' +
+                        '</td>\n' +
+                        '</tr>';
+                    r_html+='<tr>\n' +
+                        '<td>'+getEntityNameById(data[o].ent1_id)+'</td>\n' +
+                        '<td><i class="glyphicon glyphicon-link"></i></td>\n' +
+                        '<td>'+getEntityNameById(data[o].ent2_id)+'</td>\n' +
+                        '<td>'+r_json['rel']+'</td>\n' +
+                        '</tr>';
+                }
+                else{
+                    html+='<tr index='+o+'>\n' +
+                        '<td>'+getEntityNameById(data[o].ent2_id)+'<span class="blue ml20">'+r_json[data[o].ent2_id]+'</span></td>\n' +
+                        '<td><i class="glyphicon glyphicon-link"></i></td>\n' +
+                        '<td>'+getEntityNameById(data[o].ent1_id)+'<span class="blue ml20">'+r_json[data[o].ent1_id]+'</span></td>\n' +
+                        '<td>'+r_json['rel'].split('').reverse().join('')+'</td>\n' +
+                        '<td>\n' +
+                        '<button title="删除" index='+o+' class="glyphicon glyphicon-trash fr mr10 titlebox-btn3" data-toggle="modal" data-target="#entity-rela-del"></button>\n' +
+                        '</td>\n' +
+                        '</tr>';
+                    r_html+='<tr>\n' +
+                        '<td>'+getEntityNameById(data[o].ent2_id)+'</td>\n' +
+                        '<td><i class="glyphicon glyphicon-link"></i></td>\n' +
+                        '<td>'+getEntityNameById(data[o].ent1_id)+'</td>\n' +
+                        '<td>'+r_json['rel'].split('').reverse().join('')+'</td>\n' +
+                        '</tr>';
+                }
+
+            }
+            $('#r_tbody').html(html);
+            $('#relation_tbody').html(r_html);
+        }
 
 
+    });
+}
+
+/**
+ * 新建关系
+ * @param info
+ */
+function addSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk){
+
+
+
+    if(fk=='n'){
+        var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
+        var bodyParam={'method':'insert','tableName':'sys_relations',
+            'param':'{"mem_id":"'+userinfo['id']+'","status":"1","ent1_id":"'+ent1_id+
+            '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
+            col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+fk+'"}}'};
+
+        var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+        httpR.HttpRequest(function(response){
+            var obj = JSON.parse(response);
+            var status = obj['status'];
+            var msg = obj['msg'];
+            if(status=='0'){
+                alert("新建成功！");
+                //window.location.reload();
+                //window.location.href="interface.html?index="+interfaceIndex;
+                window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
+            }
+        });
+    }
+    else{
+        var bodyParam={'method':'fkey','dat_id':datasourceData[datasourceIndex].id,'tableNameS':getEntityNameById(ent1_id),'colS':col1,
+            'tableNameP':getEntityNameById(ent2_id),'colP':col2};
+
+        var httpR = new createHttpR(url+'DbService','post','text',bodyParam,'callBack');
+        httpR.HttpRequest(function(response){
+            var obj = JSON.parse(response);
+            var status = obj['status'];
+            var msg = obj['msg'];
+            if(status=='0'){
+                var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
+                var bodyParam={'method':'insert','tableName':'sys_relations',
+                    'param':'{"mem_id":"'+userinfo['id']+'","status":"1","ent1_id":"'+ent1_id+
+                    '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
+                    col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+msg+'"}}'};
+
+                var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+                httpR.HttpRequest(function(response){
+                     obj = JSON.parse(response);
+                     status = obj['status'];
+                     msg = obj['msg'];
+                    if(status=='0'){
+                        alert("新建成功！");
+                        //window.location.reload();
+                        window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
+                        //window.location.href="interface.html?index="+interfaceIndex;
+                    }
+                });
+            }
+        });
+    }
+
+
+
+}
+/**
+ * 删除关系
+ * @param info
+ */
+
+function delSys_relations(id){
+    var bodyParam={'method':'delete','tableName':'sys_relations',
+        'condition':'{"id":"'+id+'"}'};
+    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
+    httpR.HttpRequest(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+        if(status=='0'){
+            alert(msg);
+            //window.location.reload();
+            //window.location.href="interface.html?index="+interfaceIndex;
+            window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
+        }
+    });
+}
+
+function getEntityNameById(e_id) {
+    var nm_t = '';
+    for (var o in entityData) {
+        if (entityData[o].id == e_id) {
+            nm_t = entityData[o].nm_t;
+        }
+    }
+    return nm_t;
+}
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////sql/////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
