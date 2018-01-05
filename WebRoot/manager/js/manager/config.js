@@ -613,6 +613,9 @@ function  querySys_entities_col () {
  * @param info
  */
 function  querySys_sqllogs (currentPage,pageSize) {
+
+    //分页显示的页码数  必须为奇数
+    var showPage=7;
     $('#logTbody').html('');
     var param='{"page":"'+currentPage+'","size":"'+pageSize+'","order":"order by id desc"';
     if($('#searchDate').val()!=''){
@@ -668,7 +671,7 @@ function  querySys_sqllogs (currentPage,pageSize) {
                 pageHtml+='<li ><a href="#" class="pageBtn" index="1">首页</a></li>';
                 pageHtml+='<li ><a href="#" class="prevBtn" index="">上一页</a></li>';
             }
-            if(totalPage<=7){
+            if(totalPage<=showPage){
                 for(var i=1;i<Number(totalPage)+1;i++){
                     if(currentPage==i){
                         pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
@@ -679,8 +682,8 @@ function  querySys_sqllogs (currentPage,pageSize) {
                 }
             }
             else{
-                if(currentPage<=3){
-                    for(var i=1;i<=7;i++){
+                if(currentPage<=(showPage-1)/2){
+                    for(var i=1;i<=showPage;i++){
                         if(currentPage==i){
                             pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
                         }
@@ -689,8 +692,8 @@ function  querySys_sqllogs (currentPage,pageSize) {
                         }
                     }
                 }
-                else if(totalPage-currentPage<3){
-                    for(var i=Number(totalPage)-7;i<=totalPage;i++){
+                else if(totalPage-currentPage<(showPage-1)/2){
+                    for(var i=Number(totalPage)-showPage;i<=totalPage;i++){
                         if(currentPage==i){
                             pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
                         }
@@ -700,7 +703,7 @@ function  querySys_sqllogs (currentPage,pageSize) {
                     }
                 }
                 else{
-                    for(var i=Number(currentPage)-3;i<=Number(currentPage)+3;i++){
+                    for(var i=Number(currentPage)-(showPage-1)/2;i<=Number(currentPage)+(showPage-1)/2;i++){
                         if(currentPage==i){
                             pageHtml+='<li class="active"><a href="#" >'+i+'</a></li>';
                         }
