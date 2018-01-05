@@ -55,9 +55,40 @@ $(document).ready(function(){
 
 });
 
-
-//登录取token
+/**
+ * 登录
+ */
 function login() {
+    $.ajax({
+        url : url+'Members',
+        type : 'POST',
+        data : {
+            'username' : $('#username').val(),
+            'userpwd' : $('#password').val()
+        },
+        success : function(response) {
+            //console.log(response);
+            var obj = JSON.parse(response);
+            var token = obj['msg'];
+            var userinfo = JSON.stringify(obj['info']);
+            //var timestamp = Date.parse(new Date());
+            //var hash = md5(token + timestamp + sk);
+            sessionStorage.setItem('username',$('#username').val());
+            sessionStorage.setItem('userpwd',$('#password').val());
+            sessionStorage.setItem('userinfo',userinfo);
+            sessionStorage.setItem('token',token);
+            saveSys_members();
+            //window.location.href='default-page.html?backurl='+window.location.href;
+            window.location.href='default-page.html';
+        },
+        error : function(response) {
+            alert('登录失败！');
+        }
+    });
+
+}
+//登录取token
+/*function login() {
     var username =sessionStorage.getItem('username');
     var userpwd =sessionStorage.getItem('userpwd');
     $.ajax({
@@ -85,7 +116,7 @@ function login() {
         }
     });
 
-}
+}*/
 
 function createHttpR(url,type,dataType,bodyParam){
     this.url = url;
@@ -132,7 +163,14 @@ createHttpR.prototype.HttpRequest = function(callBack){
             },
             error:function(response){
                 alert('请求失败！');
+            },
+            beforeSend:function(){
+                //alert('before');
+            },
+            complete:function(){
+                //alert('complete');
             }
+
         });
     }
     else{
