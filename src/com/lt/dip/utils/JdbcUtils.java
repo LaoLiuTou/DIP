@@ -50,12 +50,52 @@ public class JdbcUtils {
 		try {
 			
 			if(dbType.equals("oracle")){
-				
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+				Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+				String connStr = "jdbc:oracle:thin:@" + dbHost + ":" + dbPort + ":orcl?user="
+				+ dbUser + "&password=" + dbPassword
+				+ "&characterEncoding=UTF8";
+				 
+				Connection conn = DriverManager.getConnection(connStr);
+				Statement stat = conn.createStatement();
+				if (conn != null) {   
+					 System.out.println("连接成功！");
+				}
+				String sql = "SELECT TABLESPACE_NAME FROM DBA_TABLESPACES WHERE TABLESPACE_NAME='"+dbName+"_data'";
+				PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery();
+				//rs.last();  rs.getRow()>0
+				//int col = rs.getMetaData().getColumnCount();
+			    if(rs.next()){
+					resultstr="表空间已存在！"; 
+			    }
+			    else{
+					sql = "create temporary tablespace "+dbName+"_temp tempfile " +
+						  "'/userdata/temp/"+dbName+"_temp.dbf' " +
+						  "size 50m autoextend on " +
+						  "next 50m maxsize 20480m " +
+						  "extent management local;";
+					sql+="create tablespace "+dbName+"_data " +
+						  "logging " +
+						  "datafile '/userdata/"+dbName+"_data.dbf' " +
+						  "size 50m autoextend on " +
+						  "next 50m maxsize 20480m " +
+						  "extent management local;";
+					sql+="alter user "+dbUser+
+						  " default tablespace "+dbName+"_data " +
+						  " temporary tablespace "+dbName+"_temp;";
+					 
+					stat.execute(sql);
+					resultstr="创建数据库成功！";
+			    }
+				stat.close();
+				conn.close();
         	}
         	else if(dbType.equals("sqlserver")){
-        		Class.forName("com.mysql.jdbc.Driver");
-    			Class.forName("com.mysql.jdbc.Driver").newInstance();
-    			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
+        		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").newInstance();
+    			//jdbc:sqlserver://124.234.102.118:2000;DatabaseName=sflzf
+    			String connStr = "jdbc:sqlserver://" + dbHost + ":" + dbPort + "?user="
     			+ dbUser + "&password=" + dbPassword
     			+ "&characterEncoding=UTF8";
     			Connection conn = DriverManager.getConnection(connStr);
@@ -63,7 +103,7 @@ public class JdbcUtils {
     			if (conn != null) {   
     				 System.out.println("连接成功！");
     			}
-    			String sql = "SELECT * FROM MASTER.DBO.SYSDATABASES WHERE NAME='"+dbName+"'";
+    			String sql = "select * From master.dbo.sysdatabases where name='"+dbName+"'";
     			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
     			ResultSet rs = pstmt.executeQuery();
     			//rs.last();  rs.getRow()>0
@@ -72,7 +112,33 @@ public class JdbcUtils {
     				resultstr="数据库已存在！"; 
     		    }
     		    else{
-    				sql = "CREATE DATABASE " + dbName ;
+    				sql = " use master "+
+    					  "	create database  "+dbName+
+    					  "	on primary  "+
+    					  "	( "+
+    					  "	    name = N'"+dbName+"', "+
+    					  "	    filename=N'/datafile/"+dbName+".mdf', "+
+    					  "	    size=10mb, "+
+    					  "	    maxsize=100mb, "+
+    					  "	    filegrowth=1mb "+
+    					  "	), "+
+    					  "	( "+
+    					  "	    name=N'"+dbName+"_temp', "+
+    					  "	    filename=N'/datafile/temp/"+dbName+".ndf', "+
+    					  "	    size=10mb, "+
+    					  "	    maxsize=100mb, "+
+    					  "	     filegrowth=10% "+
+    					  "	) "+
+    					  "	log on  "+
+    					  "	("+
+    					  "	    name=N'"+dbName+"_log', "+
+    					  "	    filename=N'/datafile/log/"+dbName+".ldf',  "+
+    					  "	    size=100mb, "+
+    					  "	    maxsize=1gb, "+
+    					  "	    filegrowth=10mb "+
+    					  "	); "+
+    					  "	go "+
+    					  "	use "+dbName+"; ";
     				stat.execute(sql);
     				resultstr="创建数据库成功！";
     		    }
@@ -124,36 +190,98 @@ public class JdbcUtils {
 	 * @param dbPassword
 	 * @throws Exception
 	 */
-	public static String  dropDb(String dbHost,String dbPort,String dbName,
+	public static String  dropDb(String dbType, String dbHost,String dbPort,String dbName,
 			String dbUser,String dbPassword) throws Exception {
 		String resultstr="删除数据库失败！";
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
-					+ dbUser + "&password=" + dbPassword
-					+ "&characterEncoding=UTF8";
-			Connection conn = DriverManager.getConnection(connStr);
-			Statement stat = conn.createStatement();
-			if (conn != null) {   
-				System.out.println("连接成功！");
-			}
-			String sql = "SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='"+dbName+"'";
-			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
-			ResultSet rs = pstmt.executeQuery();
-			//rs.last();  rs.getRow()>0
-			//int col = rs.getMetaData().getColumnCount();
-			if(rs.next()){
-				sql = "drop database " + dbName;
-				stat.execute(sql);
-				resultstr="数据库已删除！"; 
-			}
-			else{
-				
-				resultstr="数据库不存在！";
-			}
-			stat.close();
-			conn.close();
+			if(dbType.equals("oracle")){
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+				Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+				String connStr = "jdbc:oracle:thin:@" + dbHost + ":" + dbPort + ":orcl?user="
+						+ dbUser + "&password=" + dbPassword
+						+ "&characterEncoding=UTF8";
+				Connection conn = DriverManager.getConnection(connStr);
+				Statement stat = conn.createStatement();
+				if (conn != null) {   
+					System.out.println("连接成功！");
+				}
+				String sql = "SELECT TABLESPACE_NAME FROM DBA_TABLESPACES WHERE TABLESPACE_NAME='"+dbName+"'";
+				PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery();
+				//rs.last();  rs.getRow()>0
+				//int col = rs.getMetaData().getColumnCount();
+				if(rs.next()){
+					sql = "DROP TABLESPACE "+dbName+"_data INCLUDING CONTENTS AND DATAFILES;" ;
+					sql += "DROP TABLESPACE "+dbName+"_temp INCLUDING CONTENTS AND DATAFILES;" ;
+					stat.execute(sql);
+					resultstr="数据库已删除！"; 
+				}
+				else{
+					
+					resultstr="数据库不存在！";
+				}
+				stat.close();
+				conn.close();
+        	}
+        	else if(dbType.equals("sqlserver")){
+        		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").newInstance();
+    			//jdbc:sqlserver://124.234.102.118:2000;DatabaseName=sflzf
+    			String connStr = "jdbc:sqlserver://" + dbHost + ":" + dbPort + 
+    					";DatabaseName="+dbName+"?user="
+    			+ dbUser + "&password=" + dbPassword
+    			+ "&characterEncoding=UTF8";
+    			Connection conn = DriverManager.getConnection(connStr);
+    			Statement stat = conn.createStatement();
+    			if (conn != null) {   
+    				System.out.println("连接成功！");
+    			}
+    			String sql = "select * From master.dbo.sysdatabases where name='"+dbName+"'";
+    			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+    			ResultSet rs = pstmt.executeQuery();
+    			//rs.last();  rs.getRow()>0
+    			//int col = rs.getMetaData().getColumnCount();
+    			if(rs.next()){
+    				sql = "drop database " + dbName;
+    				stat.execute(sql);
+    				resultstr="数据库已删除！"; 
+    			}
+    			else{
+    				
+    				resultstr="数据库不存在！";
+    			}
+    			stat.close();
+    			conn.close();
+        	}
+        	else if(dbType.equals("mysql")){
+        		Class.forName("com.mysql.jdbc.Driver");
+    			Class.forName("com.mysql.jdbc.Driver").newInstance();
+    			String connStr = "jdbc:mysql://" + dbHost + ":" + dbPort + "?user="
+    					+ dbUser + "&password=" + dbPassword
+    					+ "&characterEncoding=UTF8";
+    			Connection conn = DriverManager.getConnection(connStr);
+    			Statement stat = conn.createStatement();
+    			if (conn != null) {   
+    				System.out.println("连接成功！");
+    			}
+    			String sql = "SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='"+dbName+"'";
+    			PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
+    			ResultSet rs = pstmt.executeQuery();
+    			//rs.last();  rs.getRow()>0
+    			//int col = rs.getMetaData().getColumnCount();
+    			if(rs.next()){
+    				sql = "drop database " + dbName;
+    				stat.execute(sql);
+    				resultstr="数据库已删除！"; 
+    			}
+    			else{
+    				
+    				resultstr="数据库不存在！";
+    			}
+    			stat.close();
+    			conn.close();
+        	}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,88 +314,281 @@ public class JdbcUtils {
 		else{
 			try {
 				JSONObject dbJO = JSONObject.fromObject(dbInfo);
-				try {
-					String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
-					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
-							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
-							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-					String createSql = "CREATE TABLE "+tableName;
-					if(param!=null&&!param.equals("")){
-						JSONArray  paramJA = JSONArray.fromObject(param);
-						//参数
-						List<String> paramList = new ArrayList<String>();
-						//是否有错误参数
-						boolean flag=true;
-						//动态添加新建参数
-						for(int index=0;index<paramJA.size();index++){
-							JSONObject paramJO = (JSONObject) paramJA.get(index);
-							String colStr = "";
-						     
-							if(paramJO!=null){
-								//列名
-								 if(paramJO.containsKey("cn")&&!paramJO.getString("cn").equals("")){
-									 colStr+=paramJO.getString("cn")+" ";
-								 }else{
-									 flag=false;
-									 break;
-								 }
-								 //数据类型/长度
-								 if(paramJO.containsKey("tp")&&paramJO.containsKey("lt")&&
-										 !paramJO.getString("tp").equals("")&&!paramJO.getString("lt").equals("")){
-									 colStr+=paramJO.getString("tp")+"("+paramJO.getString("lt")+") ";
-								 }else{
-									 flag=false;
-									 break;
-								 }
-								 //主键 Y/N
-								 if(paramJO.containsKey("pk")&&paramJO.getString("pk").equals("Y")){
-									 colStr+=" PRIMARY KEY ";
-								 }
-								 //非空 Y/N
-								 if(paramJO.containsKey("nn")&&paramJO.getString("nn").equals("Y")){
-									 colStr+=" NOT NULL ";
-								 }
-								 //自增 Y/N
-								 if(paramJO.containsKey("ai")&&paramJO.getString("ai").equals("Y")){
-									 colStr+=" AUTO_INCREMENT ";
-								 }
-								 //备注
-								 if(paramJO.containsKey("cm")){
-									 colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
-								 }
-								 //默认值 需要传单引号
-								 if(paramJO.containsKey("df")){
-									 colStr+=" DEFAULT "+paramJO.getString("df")+" ";
-								 }
-								 paramList.add(colStr) ;
+				if(dbJO.getString("dbType").equals("oracle")){
+					try {
+						String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+						ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+								dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+								dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+						String createSql = "CREATE TABLE "+tableName;
+						if(param!=null&&!param.equals("")){
+							JSONArray  paramJA = JSONArray.fromObject(param);
+							//参数
+							List<String> paramList = new ArrayList<String>();
+							//注释
+							List<String> commentList = new ArrayList<String>();
+							//自增
+							String aiStr="";
+							//是否有错误参数
+							boolean flag=true;
+							//动态添加新建参数
+							for(int index=0;index<paramJA.size();index++){
+								JSONObject paramJO = (JSONObject) paramJA.get(index);
+								String colStr = "";
+							     
+								if(paramJO!=null){
+									//列名
+									 if(paramJO.containsKey("cn")&&!paramJO.getString("cn").equals("")){
+										 colStr+=paramJO.getString("cn")+" ";
+									 }else{
+										 flag=false;
+										 break;
+									 }
+									 //数据类型/长度
+									 if(paramJO.containsKey("tp")&&paramJO.containsKey("lt")&&
+											 !paramJO.getString("tp").equals("")&&!paramJO.getString("lt").equals("")){
+										 colStr+=paramJO.getString("tp")+"("+paramJO.getString("lt")+") ";
+									 }else{
+										 flag=false;
+										 break;
+									 }
+									 //主键 Y/N
+									 if(paramJO.containsKey("pk")&&paramJO.getString("pk").equals("Y")){
+										 colStr+=" PRIMARY KEY ";
+									 }
+									 //非空 Y/N
+									 if(paramJO.containsKey("nn")&&paramJO.getString("nn").equals("Y")){
+										 colStr+=" NOT NULL ";
+									 }
+									 //自增 Y/N
+									 if(paramJO.containsKey("ai")&&paramJO.getString("ai").equals("Y")){
+										 //colStr+=" AUTO_INCREMENT ";
+										 aiStr="create sequence seq_"+paramJO.getString("cn")+" start with 1 increment by 1;";
+										 aiStr+="create or replace trigger trigger_"+tableName+
+											" before insert on "+tableName+
+											" for each row "+
+											" when(new.id is null) "+
+											" begin "+
+											"  select seq_"+tableName+".nextval into:NEW.ID from dual; "+
+											" end;";
+									 }
+									 //备注
+									 if(paramJO.containsKey("cm")){
+										 //colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
+										 //colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
+										 commentList.add("comment on column  "+tableName+"."+paramJO.getString("cn")+"  is '"+paramJO.getString("cm")+"';");
+									 }
+									 //默认值 需要传单引号
+									 if(paramJO.containsKey("df")){
+										 colStr+=" DEFAULT "+paramJO.getString("df")+" ";
+									 }
+									 paramList.add(colStr) ;
+								}
 							}
-						}
-						if(flag){
-							createSql+="("+StringUtils.join(paramList,",")+")";
-							cp.execute(c3p0Key, createSql, null);
-							resultJO.put("status", "0");
-							resultJO.put("msg", "创建成功！");
-							logger.info("创建数据表"+tableName+"成功！");
+							if(flag){
+								createSql+="("+StringUtils.join(paramList,",")+");";
+								createSql+=StringUtils.join(commentList," ");
+								createSql+=aiStr;
+								cp.execute(c3p0Key, createSql, null);
+								resultJO.put("status", "0");
+								resultJO.put("msg", "创建成功！");
+								logger.info("创建数据表"+tableName+"成功！");
+							}
+							else{
+								resultJO.put("status", "-1");
+								resultJO.put("msg", "参数格式不正确！");
+							}
 						}
 						else{
 							resultJO.put("status", "-1");
 							resultJO.put("msg", "参数格式不正确！");
+							logger.info("查询失败！");
 						}
-					}
-					else{
+						//日志
+						logger.info("执行SQL："+createSql);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
 						resultJO.put("status", "-1");
-						resultJO.put("msg", "参数格式不正确！");
-						logger.info("查询失败！");
+						resultJO.put("msg", "新建失败！");
+						logger.info("新建失败！"+e.getLocalizedMessage());
+						e.printStackTrace();
 					}
-					//日志
-					logger.info("执行SQL："+createSql);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					resultJO.put("status", "-1");
-					resultJO.put("msg", "新建失败！");
-					logger.info("新建失败！"+e.getLocalizedMessage());
-					e.printStackTrace();
-				}
+	        	}
+	        	else if(dbJO.getString("dbType").equals("sqlserver")){
+	        		try {
+						String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+						ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+								dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+								dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+						String createSql = "CREATE TABLE "+tableName;
+						if(param!=null&&!param.equals("")){
+							JSONArray  paramJA = JSONArray.fromObject(param);
+							//参数
+							List<String> paramList = new ArrayList<String>();
+							//注释
+							List<String> commentList = new ArrayList<String>();
+							//是否有错误参数
+							boolean flag=true;
+							//动态添加新建参数
+							for(int index=0;index<paramJA.size();index++){
+								JSONObject paramJO = (JSONObject) paramJA.get(index);
+								String colStr = "";
+							     
+								if(paramJO!=null){
+									//列名
+									 if(paramJO.containsKey("cn")&&!paramJO.getString("cn").equals("")){
+										 colStr+=paramJO.getString("cn")+" ";
+									 }else{
+										 flag=false;
+										 break;
+									 }
+									 //数据类型/长度
+									 if(paramJO.containsKey("tp")&&paramJO.containsKey("lt")&&
+											 !paramJO.getString("tp").equals("")&&!paramJO.getString("lt").equals("")){
+										 colStr+=paramJO.getString("tp")+"("+paramJO.getString("lt")+") ";
+									 }else{
+										 flag=false;
+										 break;
+									 }
+									 //主键 Y/N
+									 if(paramJO.containsKey("pk")&&paramJO.getString("pk").equals("Y")){
+										 colStr+=" PRIMARY KEY ";
+									 }
+									 //非空 Y/N
+									 if(paramJO.containsKey("nn")&&paramJO.getString("nn").equals("Y")){
+										 colStr+=" NOT NULL ";
+									 }
+									 //自增 Y/N
+									 if(paramJO.containsKey("ai")&&paramJO.getString("ai").equals("Y")){
+										 colStr+=" identity(1,1) ";
+									 }
+									 //备注
+									 if(paramJO.containsKey("cm")){
+										 //colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
+										 commentList.add("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'"+paramJO.getString("cm")+
+												 "' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'"+tableName+
+												 "', @level2type=N'COLUMN',@level2name=N'"+paramJO.getString("cn")+"'");
+										 
+									 }
+									 //默认值 需要传单引号
+									 if(paramJO.containsKey("df")){
+										 colStr+=" DEFAULT "+paramJO.getString("df")+" ";
+									 }
+									 paramList.add(colStr) ;
+								}
+							}
+							if(flag){
+								createSql+="("+StringUtils.join(paramList,",")+")";
+								cp.execute(c3p0Key, createSql, null);
+								resultJO.put("status", "0");
+								resultJO.put("msg", "创建成功！");
+								logger.info("创建数据表"+tableName+"成功！");
+							}
+							else{
+								resultJO.put("status", "-1");
+								resultJO.put("msg", "参数格式不正确！");
+							}
+						}
+						else{
+							resultJO.put("status", "-1");
+							resultJO.put("msg", "参数格式不正确！");
+							logger.info("查询失败！");
+						}
+						//日志
+						logger.info("执行SQL："+createSql);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						resultJO.put("status", "-1");
+						resultJO.put("msg", "新建失败！");
+						logger.info("新建失败！"+e.getLocalizedMessage());
+						e.printStackTrace();
+					}
+	        	}
+	        	else if(dbJO.getString("dbType").equals("mysql")){
+	        		 
+	        		try {
+	        			String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+	        			ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+	        					dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+	        					dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+	        			String createSql = "CREATE TABLE "+tableName;
+	        			if(param!=null&&!param.equals("")){
+	        				JSONArray  paramJA = JSONArray.fromObject(param);
+	        				//参数
+	        				List<String> paramList = new ArrayList<String>();
+	        				//是否有错误参数
+	        				boolean flag=true;
+	        				//动态添加新建参数
+	        				for(int index=0;index<paramJA.size();index++){
+	        					JSONObject paramJO = (JSONObject) paramJA.get(index);
+	        					String colStr = "";
+	        					
+	        					if(paramJO!=null){
+	        						//列名
+	        						if(paramJO.containsKey("cn")&&!paramJO.getString("cn").equals("")){
+	        							colStr+=paramJO.getString("cn")+" ";
+	        						}else{
+	        							flag=false;
+	        							break;
+	        						}
+	        						//数据类型/长度
+	        						if(paramJO.containsKey("tp")&&paramJO.containsKey("lt")&&
+	        								!paramJO.getString("tp").equals("")&&!paramJO.getString("lt").equals("")){
+	        							colStr+=paramJO.getString("tp")+"("+paramJO.getString("lt")+") ";
+	        						}else{
+	        							flag=false;
+	        							break;
+	        						}
+	        						//主键 Y/N
+	        						if(paramJO.containsKey("pk")&&paramJO.getString("pk").equals("Y")){
+	        							colStr+=" PRIMARY KEY ";
+	        						}
+	        						//非空 Y/N
+	        						if(paramJO.containsKey("nn")&&paramJO.getString("nn").equals("Y")){
+	        							colStr+=" NOT NULL ";
+	        						}
+	        						//自增 Y/N
+	        						if(paramJO.containsKey("ai")&&paramJO.getString("ai").equals("Y")){
+	        							colStr+=" AUTO_INCREMENT ";
+	        						}
+	        						//备注
+	        						if(paramJO.containsKey("cm")){
+	        							colStr+=" COMMENT '"+paramJO.getString("cm")+"' ";
+	        						}
+	        						//默认值 需要传单引号
+	        						if(paramJO.containsKey("df")){
+	        							colStr+=" DEFAULT "+paramJO.getString("df")+" ";
+	        						}
+	        						paramList.add(colStr) ;
+	        					}
+	        				}
+	        				if(flag){
+	        					createSql+="("+StringUtils.join(paramList,",")+")";
+	        					cp.execute(c3p0Key, createSql, null);
+	        					resultJO.put("status", "0");
+	        					resultJO.put("msg", "创建成功！");
+	        					logger.info("创建数据表"+tableName+"成功！");
+	        				}
+	        				else{
+	        					resultJO.put("status", "-1");
+	        					resultJO.put("msg", "参数格式不正确！");
+	        				}
+	        			}
+	        			else{
+	        				resultJO.put("status", "-1");
+	        				resultJO.put("msg", "参数格式不正确！");
+	        				logger.info("查询失败！");
+	        			}
+	        			//日志
+	        			logger.info("执行SQL："+createSql);
+	        		} catch (Exception e) {
+	        			// TODO Auto-generated catch block
+	        			resultJO.put("status", "-1");
+	        			resultJO.put("msg", "新建失败！");
+	        			logger.info("新建失败！"+e.getLocalizedMessage());
+	        			e.printStackTrace();
+	        		}
+	        	}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				resultJO.put("status", "-1");
@@ -1357,11 +1678,14 @@ public class JdbcUtils {
 					String alterSql ="";
 					String fkName="FK_"+UUID.randomUUID();
 					if(dbJO.getString("dbType").equals("oracle")){
+						alterSql="ALTER TABLE "+tableNameS+" ADD CONSTRAINT "+fkName+" FOREIGN KEY ("+colS+
+								") REFERENCES "+tableNameP+" ("+colP+") ON DELETE CASCADE ON UPDATE CASCADE;";
 					}
 					else if(dbJO.getString("dbType").equals("sqlserver")){
+						alterSql="ALTER TABLE "+tableNameS+" ADD CONSTRAINT "+fkName+" FOREIGN KEY ("+colS+
+								") REFERENCES "+tableNameP+" ("+colP+") ON DELETE CASCADE ON UPDATE CASCADE;";
 					}
 					else if(dbJO.getString("dbType").equals("mysql")){
-						
 						alterSql="ALTER TABLE `"+tableNameS+"` ADD CONSTRAINT `"+fkName+"` FOREIGN KEY (`"+colS+
 								"`) REFERENCES `"+tableNameP+"` (`"+colP+"`) ON DELETE CASCADE ON UPDATE CASCADE;";
 					}
@@ -1410,21 +1734,36 @@ public class JdbcUtils {
 		else{
 			try {
 				JSONObject dbJO = JSONObject.fromObject(dbInfo);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        		Properties props = new Properties();  
+    	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
+    			String backupDir=props.getProperty("backupDir")+"/"+sdf.format(new Date());
 				if(dbJO.getString("dbType").equals("oracle")){
-					resultJO.put("status", "-1");
-					resultJO.put("msg", "正在开发中！");
+					String fileName=UUID.randomUUID()+".dmp";
+	        		if (exportOracle(dbJO.getString("dbHost"),dbJO.getString("dbUser"),dbJO.getString("dbPassword"), 
+	        				backupDir, fileName, dbJO.getString("dbName"))) {  
+	        			resultJO.put("status", "0");
+	    				resultJO.put("msg", backupDir+"/"+fileName);  
+	    				resultStatus="0";
+	                } else { 
+	                	resultJO.put("status", "-1");
+	    				resultJO.put("msg", "数据库备份失败！");
+	                }
 	        	}
 	        	else if(dbJO.getString("dbType").equals("sqlserver")){
-	        		resultJO.put("status", "-1");
-					resultJO.put("msg", "正在开发中！");
+	        		String fileName=UUID.randomUUID()+".bak";
+	    			String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+					String backupSql ="BACKUP DATABASE Northwind TO DISK = '"+backupDir+"/"+fileName+"'";
+					cp.execute(c3p0Key, backupSql,null);
+					resultJO.put("status", "0");
+					resultJO.put("msg", backupDir+"/"+fileName);  
+					resultStatus="0";
 	        	}
 	        	else if(dbJO.getString("dbType").equals("mysql")){
-	        		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	        		Properties props = new Properties();  
-	    	      	props.load(DataSource.class.getClassLoader().getResourceAsStream("dbpool.properties"));  
-	    			String backupDir=props.getProperty("backupDir")+"/"+sdf.format(new Date());
 	    			String fileName=UUID.randomUUID()+".sql";
-	    			
 	        		if (exportMysql(dbJO.getString("dbHost"),dbJO.getString("dbUser"),dbJO.getString("dbPassword"), 
 	        				backupDir, fileName, dbJO.getString("dbName"))) {  
 	        			resultJO.put("status", "0");
@@ -1472,12 +1811,26 @@ public class JdbcUtils {
 			try {
 				JSONObject dbJO = JSONObject.fromObject(dbInfo);
 				if(dbJO.getString("dbType").equals("oracle")){
-					resultJO.put("status", "-1");
-					resultJO.put("msg", "正在开发中！");
+					if (importOracle(dbJO.getString("dbHost"),dbJO.getString("dbUser"),dbJO.getString("dbPassword"), 
+							filePath, dbJO.getString("dbName"))) {  
+						resultJO.put("status", "0");
+						resultJO.put("msg", "数据库恢复成功！");  
+						resultStatus="0";
+					} else { 
+						resultJO.put("status", "-1");
+						resultJO.put("msg", "数据库恢复失败！");
+					} 
 				}
 				else if(dbJO.getString("dbType").equals("sqlserver")){
-					resultJO.put("status", "-1");
-					resultJO.put("msg", "正在开发中！");
+					String c3p0Key=dbJO.getString("dbType")+":"+dbJO.getString("dbHost")+":"+dbJO.getString("dbPort")+":"+dbJO.getString("dbName");
+					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
+							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
+							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
+					String backupSql ="RESTORE FILELISTONLY FROM DISK = '"+filePath+"'";
+					cp.execute(c3p0Key, backupSql,null);
+					resultJO.put("status", "0");
+					resultJO.put("msg", "数据库恢复成功！");  
+					resultStatus="0";
 				}
 				else if(dbJO.getString("dbType").equals("mysql")){
 					 
@@ -1643,6 +1996,50 @@ public class JdbcUtils {
             e.printStackTrace();  
         }  
         return false;  
-    }  
-     
+    } 
+    /** 
+     * 还原D:db.sql到erp数据库 
+     * @return 
+     */  
+    public static boolean importOracle(String hostIP, String userName, String password,
+    		String filePath, String databaseName) {//还原  
+    	Logger logger = Logger.getLogger("DipLogger");
+        try {  
+        	 
+            Runtime rt = Runtime.getRuntime();    
+            String cmdStr="";
+
+            cmdStr="exp "+userName+"/"+password+"@"+
+    				hostIP+"/"+databaseName+" fromuser="+userName+" touser="+userName+
+    				" file="+filePath;
+           
+            logger.info("还原命令："+cmdStr);
+            logger.info("还原文件路径："+filePath);
+            // 调用 mysql 的 cmd:    
+            Process child = rt.exec(cmdStr);    
+            OutputStream out = child.getOutputStream();//控制台的输入信息作为输出流    
+            String inStr;    
+            StringBuffer sb = new StringBuffer("");    
+            String outStr;    
+            BufferedReader br = new BufferedReader(new InputStreamReader(    
+                    new FileInputStream(filePath), "utf8"));    
+            while ((inStr = br.readLine()) != null) {    
+                sb.append(inStr + "\r\n");    
+            }    
+            outStr = sb.toString();    
+        
+            OutputStreamWriter writer = new OutputStreamWriter(out, "utf8");    
+            writer.write(outStr);    
+            // 注：这里如果用缓冲方式写入文件的话，会导致中文乱码，用flush()方法则可以避免    
+            writer.flush();    
+            // 别忘记关闭输入输出流    
+            out.close();    
+            br.close();    
+            writer.close();    
+            return true;     
+        } catch (Exception e) {    
+            e.printStackTrace();    
+        }    
+        return false;    
+    }
 }

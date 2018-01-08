@@ -178,7 +178,7 @@ public class DataSource extends HttpServlet {
 								resultJO.put("msg", createDBStr);
 							}
 							else{
-								JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
+								JdbcUtils.dropDb(dbJO.getString("dbType"),dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
 										dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
 								resultJO.put("status", "-1");
 								resultJO.put("msg", "保存数据源出错！");
@@ -247,7 +247,7 @@ public class DataSource extends HttpServlet {
 						}
 						else{
 							//删除实体数据库
-							String dropDBStr=JdbcUtils.dropDb(dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
+							String dropDBStr=JdbcUtils.dropDb(dbJO.getString("dbType"),dbJO.getString("dbHost"), dbJO.getString("dbPort"), dbJO.getString("dbName"),
 									dbJO.getString("dbUser"), dbJO.getString("dbPassword"));
 							if(dropDBStr.equals("数据库已删除！")||dropDBStr.equals("数据库不存在！")){
 								resultJO.put("status", "0");

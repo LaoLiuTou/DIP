@@ -409,7 +409,7 @@ function addSys_datasources(info){
     var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
     var bodyParam={'method':'create','dbInfo':info,'mem_id':userinfo['id'],'status':$('#datasource_status').val(),
         'nm_t':$('#datasource_nm_t').val(),'pro_id':'0'};
-    alert(bodyParam);
+  
     var httpR = new createHttpR(url+'DataSource','post','text',bodyParam,'callBack');
     httpR.HttpRequest(function(response){
         var obj = JSON.parse(response);
