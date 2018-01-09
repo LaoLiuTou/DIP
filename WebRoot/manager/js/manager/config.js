@@ -7,6 +7,26 @@ var sk = '!QAZXSW@#C';
 
 
 $(document).ready(function(){
+
+    $('#dbType').change(function(){
+        if($('#dbType').val()=='redis'){
+            $('#dbName').parent().parent().parent().parent().hide();
+            $('#dbName').val('');
+            $('#dbUser').parent().parent().parent().parent().hide();
+            $('#dbUser').val('');
+            $('#dbPassword').parent().parent().parent().parent().hide();
+            $('#dbPassword').val('');
+        }
+        else{
+            $('#dbName').parent().parent().parent().parent().show();
+            $('#dbName').val('');
+            $('#dbUser').parent().parent().parent().parent().show();
+            $('#dbUser').val('');
+            $('#dbPassword').parent().parent().parent().parent().show();
+            $('#dbPassword').val('');
+        }
+
+    });
     $('#addDatasourceBtn').click(function(){
         if($('#datasource_nm_t').val()==''){
             alert('数据源名称不能为空！');
@@ -20,15 +40,15 @@ $(document).ready(function(){
             alert('数据源端口不能为空！');
             return false;
         }
-        if($('#dbName').val()==''){
+        if($('#dbType').val()!='redis'&&$('#dbName').val()==''){
             alert('数据源实例名称不能为空！');
             return false;
         }
-        if($('#dbUser').val()==''){
+        if($('#dbType').val()!='redis'&&$('#dbUser').val()==''){
             alert('数据源用户名不能为空！');
             return false;
         }
-        if($('#dbPassword').val()==''){
+        if($('#dbType').val()!='redis'&&$('#dbPassword').val()==''){
             alert('数据源用户密码不能为空！');
             return false;
         }
@@ -409,7 +429,7 @@ function addSys_datasources(info){
     var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
     var bodyParam={'method':'create','dbInfo':info,'mem_id':userinfo['id'],'status':$('#datasource_status').val(),
         'nm_t':$('#datasource_nm_t').val(),'pro_id':'0'};
-  
+
     var httpR = new createHttpR(url+'DataSource','post','text',bodyParam,'callBack');
     httpR.HttpRequest(function(response){
         var obj = JSON.parse(response);

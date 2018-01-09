@@ -14,11 +14,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="datasource.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="datasource.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/manager/datasource.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="55" column="17" lean-forward="false" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="17" />
+            <state relative-caret-position="459">
+              <caret line="99" column="46" lean-forward="false" selection-start-line="99" selection-start-column="46" selection-end-line="99" selection-end-column="46" />
               <folding />
             </state>
           </provider>
@@ -27,8 +27,8 @@
       <file leaf-file-name="entity.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/manager/entity.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="710">
-              <caret line="101" column="9" lean-forward="true" selection-start-line="101" selection-start-column="9" selection-end-line="101" selection-end-column="9" />
+            <state relative-caret-position="1616">
+              <caret line="101" column="9" lean-forward="false" selection-start-line="101" selection-start-column="9" selection-end-line="101" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -37,21 +37,31 @@
       <file leaf-file-name="interface.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/manager/interface.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="710">
-              <caret line="94" column="87" lean-forward="true" selection-start-line="94" selection-start-column="87" selection-end-line="94" selection-end-column="87" />
+            <state relative-caret-position="1504">
+              <caret line="94" column="87" lean-forward="false" selection-start-line="94" selection-start-column="87" selection-end-line="94" selection-end-column="87" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="config.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/manager/config.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="411" column="2" lean-forward="false" selection-start-line="411" selection-start-column="2" selection-end-line="411" selection-end-column="2" />
+            <state relative-caret-position="213">
+              <caret line="468" column="9" lean-forward="false" selection-start-line="468" selection-start-column="9" selection-end-line="468" selection-end-column="9" />
               <folding>
-                <marker date="1515392133629" expanded="true" signature="16822:16828" ph=" " />
+                <marker date="1515466805052" expanded="true" signature="17662:17668" ph=" " />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="entity.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/entity.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="7707">
+              <caret line="524" column="54" lean-forward="true" selection-start-line="524" selection-start-column="54" selection-end-line="524" selection-end-column="54" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -59,8 +69,8 @@
       <file leaf-file-name="datasource.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/datasource.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="242" column="26" lean-forward="true" selection-start-line="242" selection-start-column="26" selection-end-line="242" selection-end-column="26" />
+            <state relative-caret-position="256">
+              <caret line="103" column="125" lean-forward="false" selection-start-line="103" selection-start-column="112" selection-end-line="103" selection-end-column="125" />
               <folding />
             </state>
           </provider>
@@ -77,11 +87,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>querySys_datasources</find>
-      <find>datasources-update</find>
-      <find>querySys_entities</find>
-      <find>config-delete-x</find>
-      <find>DbService</find>
       <find>entityDelBtn</find>
       <find>add_column_default</find>
       <find>userinfo</find>
@@ -107,6 +112,11 @@
       <find>relation_querySys_entities_col</find>
       <find>select_col</find>
       <find>alert</find>
+      <find>dbType</find>
+      <find>update_dbType</find>
+      <find>addDatasourceBtn</find>
+      <find>delSys_datasources</find>
+      <find>deleteDatasourceBtn</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;</replace>
@@ -126,13 +136,13 @@
         <option value="$PROJECT_DIR$/user-management.html" />
         <option value="$PROJECT_DIR$/js/manager/interface.js" />
         <option value="$PROJECT_DIR$/interface.html" />
-        <option value="$PROJECT_DIR$/datasource.html" />
         <option value="$PROJECT_DIR$/js/manager/entity.js" />
         <option value="$PROJECT_DIR$/entity.html" />
         <option value="$PROJECT_DIR$/login.html" />
         <option value="$PROJECT_DIR$/log.html" />
-        <option value="$PROJECT_DIR$/js/manager/datasource.js" />
         <option value="$PROJECT_DIR$/js/manager/config.js" />
+        <option value="$PROJECT_DIR$/datasource.html" />
+        <option value="$PROJECT_DIR$/js/manager/datasource.js" />
       </list>
     </option>
   </component>
@@ -142,7 +152,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="93" />
     <option name="y" value="402" />
     <option name="width" value="1185" />
@@ -163,8 +173,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -192,6 +200,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -270,18 +280,19 @@
       <workItem from="1514939935309" duration="21596000" />
       <workItem from="1515026444553" duration="17583000" />
       <workItem from="1515112619949" duration="15101000" />
-      <workItem from="1515372389584" duration="1495000" />
+      <workItem from="1515372389584" duration="8525000" />
+      <workItem from="1515458683953" duration="5281000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="211112000" />
+    <option name="totallyTimeSpent" value="223423000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-5" y="-5" width="1450" height="870" extended-state="7" />
+    <frame x="-5" y="-5" width="1450" height="870" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20069444" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20028208" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.09921671" sideWeight="0.50277776" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -312,13 +323,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/datasource.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1632">
-          <caret line="102" column="17" lean-forward="true" selection-start-line="99" selection-start-column="16" selection-end-line="102" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/default-page.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
@@ -353,7 +357,7 @@
         <state relative-caret-position="5392">
           <caret line="337" column="37" lean-forward="true" selection-start-line="337" selection-start-column="12" selection-end-line="337" selection-end-column="37" />
           <folding>
-            <marker date="1515392133629" expanded="true" signature="16822:16828" ph=" " />
+            <marker date="1515466805052" expanded="true" signature="17662:17668" ph=" " />
           </folding>
         </state>
       </provider>
@@ -406,7 +410,7 @@
         <state relative-caret-position="1552">
           <caret line="97" column="23" lean-forward="false" selection-start-line="97" selection-start-column="9" selection-end-line="97" selection-end-column="23" />
           <folding>
-            <marker date="1515392133629" expanded="true" signature="16822:16828" ph=" " />
+            <marker date="1515466805052" expanded="true" signature="17662:17668" ph=" " />
           </folding>
         </state>
       </provider>
@@ -446,7 +450,7 @@
         <state relative-caret-position="1280">
           <caret line="80" column="14" lean-forward="true" selection-start-line="80" selection-start-column="14" selection-end-line="80" selection-end-column="14" />
           <folding>
-            <marker date="1515392133629" expanded="true" signature="16822:16828" ph=" " />
+            <marker date="1515466805052" expanded="true" signature="17662:17668" ph=" " />
           </folding>
         </state>
       </provider>
@@ -565,13 +569,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/entity.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8336">
-          <caret line="524" column="54" lean-forward="true" selection-start-line="524" selection-start-column="54" selection-end-line="524" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/interface.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="976">
@@ -599,43 +596,56 @@
     <entry file="file://$PROJECT_DIR$/js/before/config.js" />
     <entry file="file://$PROJECT_DIR$/js/manager/entity.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="710">
-          <caret line="101" column="9" lean-forward="true" selection-start-line="101" selection-start-column="9" selection-end-line="101" selection-end-column="9" />
+        <state relative-caret-position="1616">
+          <caret line="101" column="9" lean-forward="false" selection-start-line="101" selection-start-column="9" selection-end-line="101" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/manager/interface.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="710">
-          <caret line="94" column="87" lean-forward="true" selection-start-line="94" selection-start-column="87" selection-end-line="94" selection-end-column="87" />
+        <state relative-caret-position="1504">
+          <caret line="94" column="87" lean-forward="false" selection-start-line="94" selection-start-column="87" selection-end-line="94" selection-end-column="87" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/102-1F124110Z6.jpg">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/manager/config.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="468" column="9" lean-forward="false" selection-start-line="468" selection-start-column="9" selection-end-line="468" selection-end-column="9" />
+          <folding>
+            <marker date="1515466805052" expanded="true" signature="17662:17668" ph=" " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/entity.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7707">
+          <caret line="524" column="54" lean-forward="true" selection-start-line="524" selection-start-column="54" selection-end-line="524" selection-end-column="54" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/datasource.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="242" column="26" lean-forward="true" selection-start-line="242" selection-start-column="26" selection-end-line="242" selection-end-column="26" />
+        <state relative-caret-position="256">
+          <caret line="103" column="125" lean-forward="false" selection-start-line="103" selection-start-column="112" selection-end-line="103" selection-end-column="125" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/manager/datasource.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="55" column="17" lean-forward="false" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="17" />
+        <state relative-caret-position="459">
+          <caret line="99" column="46" lean-forward="false" selection-start-line="99" selection-start-column="46" selection-end-line="99" selection-end-column="46" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/manager/config.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="411" column="2" lean-forward="false" selection-start-line="411" selection-start-column="2" selection-end-line="411" selection-end-column="2" />
-          <folding>
-            <marker date="1515392133629" expanded="true" signature="16822:16828" ph=" " />
-          </folding>
         </state>
       </provider>
     </entry>

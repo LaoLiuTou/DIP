@@ -85,6 +85,21 @@ $(document).ready(function() {
         $('#update_dbUser').val(dat_info['dbUser']);
         $('#update_dbPassword').val(dat_info['dbPassword']);
 
+        if($('#update_dbType').val()=='redis'){
+            $('#update_dbName').parent().parent().hide();
+            $('#update_dbUser').parent().parent().hide();
+            $('#update_dbPassword').parent().parent().hide();
+            $('#ds_add_entity').attr('disabled',true);
+            $('#delete').attr('disabled',true);
+        }
+        else{
+            $('#update_dbName').parent().parent().show();
+            $('#update_dbUser').parent().parent().show();
+            $('#update_dbPassword').parent().parent().show();
+            $('#ds_add_entity').attr('disabled',false);
+            $('#delete').attr('disabled',false);
+        }
+
         ovalue=$('#ds_nm_t').val()+$('#ds_status').val()+$('#update_dbType').val()+$('#update_dbHost').val()+
             $('#update_dbPort').val()+$('#update_dbName').val()+$('#update_dbUser').val()+$('#update_dbPassword').val();
         var sys_user=sessionStorage.getItem('sys_user');
@@ -97,6 +112,19 @@ $(document).ready(function() {
 
     });
 
+    $('#update_dbType').change(function(){
+        if($('#update_dbType').val()=='redis'){
+            $('#update_dbName').parent().parent().hide();
+            $('#update_dbUser').parent().parent().hide();
+            $('#update_dbPassword').parent().parent().hide();
+        }
+        else{
+            $('#update_dbName').parent().parent().show();
+            $('#update_dbUser').parent().parent().show();
+            $('#update_dbPassword').parent().parent().show();
+        }
+
+    });
     $('#saveBtn').click(function(){
         if($('#ds_nm_t').val()==''){
             alert('数据源名称不能为空！');
@@ -130,8 +158,15 @@ $(document).ready(function() {
             return false;
         }
         else{
-            var info='{"dbHost":'+$('#update_dbHost').val()+',"dbName":"'+$('#update_dbName').val()+'","dbPort":"'+$('#update_dbPort').val()+'","dbType":"'
-                +$('#update_dbType').val()+'","dbUser":"'+$('#update_dbUser').val()+'","dbPassword":"'+$('#update_dbPassword').val()+'"}';
+            var info='';
+            if($('#update_dbType').val()=='redis'){
+                info='{"dbHost":'+$('#update_dbHost').val()+',"dbName":"","dbPort":"'+$('#update_dbPort').val()+'","dbType":"'
+                    +$('#update_dbType').val()+'","dbUser":"","dbPassword":""}';
+            }
+            else{
+                info='{"dbHost":'+$('#update_dbHost').val()+',"dbName":"'+$('#update_dbName').val()+'","dbPort":"'+$('#update_dbPort').val()+'","dbType":"'
+                    +$('#update_dbType').val()+'","dbUser":"'+$('#update_dbUser').val()+'","dbPassword":"'+$('#update_dbPassword').val()+'"}';
+            }
             updateSys_datasources(info,datasourceData[datasourceIndex].id);
         }
 
