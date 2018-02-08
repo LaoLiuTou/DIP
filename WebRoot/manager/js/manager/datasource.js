@@ -13,10 +13,13 @@ var entityData;
 $(document).ready(function() {
     ////初始化接口数据
     //querySys_interfaces();
+    $('#dsPart').show();
+    $('#entityPart').hide();
+
     ///初始化数据源数据
     querySys_datasources();
 
-    $('#delete').attr('data-target', '');
+    $('#delete').attr('data-target', '#config-delete-n');
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////接口操作///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -37,7 +40,20 @@ $(document).ready(function() {
         $(this).attr('class','active');
         entityIndex=$(this).attr('index');
         //window.location.href="entity.html?index="+datasourceIndex+'&eindex='+entityIndex;
-        $('#delete').attr('data-target', '#config-delete-x');
+        $('#delete').attr('data-target', '#config-delete-e');
+
+        $('#en_nm_t').val(entityData[entityIndex].nm_t);
+        $('#desc_t').val(entityData[entityIndex].desc_t);
+        $('#en_status').val(entityData[entityIndex].status);
+        $('#en_c_dt').val(entityData[entityIndex].c_dt);
+        var sys_user=sessionStorage.getItem('sys_user');
+        if(sys_user!=null){
+            $('#en_mem_id').val(JSON.parse(sys_user)[entityData[entityIndex].mem_id]);
+        }
+        $('#save').attr('data-target', '#entity-update');
+
+        $('#dsPart').hide();
+        $('#entityPart').show();
     });
 
 
@@ -61,6 +77,17 @@ $(document).ready(function() {
          addSys_entities(dat_id,param);
      });
 
+    $('#saveEntityBtn').click(function(){
+        if($('#en_nm_t').val()==''){
+            alert('实体名称不能为空！');
+            return false;
+        }
+
+        var param='{"nm_t":"'+$('#en_nm_t').val()+'","status":"'+$('#en_status').val()+'","desc_t":"'+$('#desc_t').val()+'"}';
+        updateSys_entities(entityData[entityIndex].dat_id,entityData[entityIndex].id,param);
+
+
+    });
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////数据源操作///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -108,8 +135,10 @@ $(document).ready(function() {
         }
 
         //删除按钮不可点击
-        $('#delete').attr('data-target', '');
-
+        $('#delete').attr('data-target', '#config-delete-n');
+        $('#save').attr('data-target', '#datasources-update');
+        $('#dsPart').show();
+        $('#entityPart').hide();
     });
 
     $('#update_dbType').change(function(){
@@ -125,7 +154,7 @@ $(document).ready(function() {
         }
 
     });
-    $('#saveBtn').click(function(){
+    $('#saveDsBtn').click(function(){
         if($('#ds_nm_t').val()==''){
             alert('数据源名称不能为空！');
             return false;

@@ -2,6 +2,7 @@ package com.lt.dip.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 
 import javax.servlet.ServletException;
@@ -183,10 +184,12 @@ public class DipService extends HttpServlet {
 	 * @param request(dbInfo,type,sql)
 	 * @param response
 	 * @return
+	 * @throws UnsupportedEncodingException 
 	 */
-	public String execute(HttpServletRequest request, HttpServletResponse response){
+	public String execute(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException{
 		String type = request.getParameter("type"); 
-		String sql = request.getParameter("sql"); 
+		String sql = request.getParameter("sql");
+		sql = new String(sql.getBytes("ISO-8859-1"), "UTF-8");
 		String userId = (String) request.getAttribute("userId");//用户id
 		return JdbcUtils.execute(userId,ConfigUtil.getConfig(), type,sql);
 	}

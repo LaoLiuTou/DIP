@@ -442,7 +442,19 @@ body {
     border: none;
     background: none;
 }
+.titlebox-btn4 {
+    padding: 0 10px;
+    color: #119cfa!important;
+    border: none;
+    background: none;
+}
 
+.titlebox-btn5 {
+    padding: 0 10px;
+    color: #ccc!important;
+    border: none;
+    background: none;
+}
 /*login-css*/
 .big-bg-login {
     background: url(../images/big-bg.jpg) no-repeat;

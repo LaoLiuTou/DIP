@@ -1,4 +1,3 @@
-
 //后台服务地址
 var url = 'http://192.168.1.144/DIP/';
 //secret key
@@ -61,6 +60,9 @@ $(document).ready(function(){
     $('#deleteDatasourceBtn').click(function () {
         delSys_datasources();
     });
+    $('#deleteEntityBtn').click(function () {
+        delSys_entities();
+    });
     $('#logoutBtn').click(function () {
         sessionStorage.clear();
         window.location.href='login.html';
@@ -79,6 +81,14 @@ $(document).ready(function(){
  * 登录
  */
 function login() {
+    /*$('body').mLoading({
+        text:"加载中...",//加载文字，默认值：加载中...
+        icon:"",//加载图标，默认值：一个小型的base64的gif图片
+        html:false,//设置加载内容是否是html格式，默认值是false
+        content:"",//忽略icon和text的值，直接在加载框中显示此值
+        mask:true//是否显示遮罩效果，默认显示
+    });*/
+    $('body').mLoading("show");
     $.ajax({
         url : url+'Members',
         type : 'POST',
@@ -99,9 +109,11 @@ function login() {
             sessionStorage.setItem('token',token);
             saveSys_members();
             //window.location.href='default-page.html?backurl='+window.location.href;
+            $('body').mLoading("hide");
             window.location.href='default-page.html';
         },
         error : function(response) {
+            $('body').mLoading("hide");
             alert('登录失败！');
         }
     });
@@ -164,6 +176,7 @@ createHttpR.prototype.HttpRequest = function(callBack){
                 'sign' : hash
             },
             success:function(response) {
+
                 var obj = JSON.parse(response);
                 var status = obj['status'];
                 var msg = obj['msg'];
@@ -182,13 +195,13 @@ createHttpR.prototype.HttpRequest = function(callBack){
                 }
             },
             error:function(response){
+
                 alert('请求失败！');
             },
             beforeSend:function(){
-                //alert('before');
             },
             complete:function(){
-                //alert('complete');
+
             }
 
         });
@@ -201,6 +214,72 @@ createHttpR.prototype.HttpRequest = function(callBack){
 
 }
 
+function createHttpAsync(url,type,dataType,bodyParam){
+
+    this.url = url;
+    this.type = type;
+    this.dataType = dataType;
+    this.bodyParam = bodyParam;
+}
+createHttpAsync.prototype.HttpRequestAsync = function(callBackAsync){
+
+    if(sessionStorage.getItem('username')!=null||sessionStorage.getItem('token')!=null){
+        var  token = sessionStorage.getItem('token');
+        var timestamp = Date.parse(new Date());
+        var hash = md5(token+timestamp+sk);
+        $.ajax({
+            url:this.url,
+            type:this.type,
+            cache:false,
+
+            dataType:this.dataType,
+            data :this.bodyParam,
+            async:true,
+            headers: {
+                'token' : token,
+                'timesamp' : timestamp,
+                'sign' : hash
+            },
+            success:function(response) {
+
+                var obj = JSON.parse(response);
+                var status = obj['status'];
+                var msg = obj['msg'];
+                if(status=='mismatch'||status=='expire'){
+                    console.log(msg);
+                    alert('验证信息错误，请重新登录！');
+                    //无用户信息，重新登录
+                    window.location.href='login.html';
+                    //login();
+                }
+                else if(status=='0'){
+                    callBackAsync(response);
+                }
+                else{
+                    alert(msg);
+                }
+            },
+            error:function(response){
+                alert("EEEEE"+JSON.stringify(response));
+                alert('请求失败！');
+            },
+            beforeSend:function(){
+                $("body").mLoading("show");
+            },
+            complete:function(){
+                $("body").mLoading("hide");
+
+            }
+
+        });
+    }
+    else{
+        alert('访问权限已过期，请重新登录！');
+        //无用户信息，重新登录
+        window.location.href='login.html';
+    }
+
+}
 
 function GetQueryString(name)
 {
@@ -261,8 +340,8 @@ function  saveSys_members () {
     var param='{"page":"1","size":"10","order":"order by id desc"}';
 
     var bodyParam={'method':'query','tableName':'sys_members','param':param};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -294,8 +373,8 @@ function  addSys_members () {
     var bodyParam={'method':'insert','tableName':'sys_members',
         'param':'{"mem_id":"'+userinfo['id']+'","status":"1","username":"'+$('#username').val()+
         '","userpwd":"'+md5($('#userpwd').val())+'","displayname":"'+$('#displayname').val()+'"}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -312,8 +391,8 @@ function  addSys_members () {
 function delSys_members(){
     var bodyParam={'method':'delete','tableName':'sys_members',
         'condition':'{"id":"'+selectId+'"}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -337,15 +416,15 @@ function addSys_interfaces(info){
     var bodyParam={'method':'insert','tableName':'sys_interfaces',
         'param':'{"mem_id":"'+userinfo['id']+'","status":"1","nm_t":"'+$('#nm_t').val()+
         '","pro_id":"0","type":"数据平台","interface_json":'+info+'}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
         if(status=='0'){
             alert("新建成功！");
-            window.location.reload();
-            //window.location.href="interface.html?index="+interfaceIndex;
+            //window.location.reload();
+            window.location.href="interface.html?index=0";
         }
     });
 }
@@ -356,9 +435,24 @@ function addSys_interfaces(info){
 function updateSys_interfaces(info,id){
     var bodyParam={'method':'update','tableName':'sys_interfaces',
         'param':'{"status":"1","nm_t":"'+$('#updateNm_t').val()+
-        '","pro_id":"0","type":"数据平台接口","interface_json":'+info+'}','condition':'{"id":"'+id+'"}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+        '","pro_id":"0","type":"数据平台","interface_json":'+info+'}','condition':'{"id":"'+id+'"}'};
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+        if(status=='0'){
+            alert(msg);
+            //window.location.reload();
+            window.location.href="interface.html?index="+interfaceIndex;
+        }
+    });
+}
+function updateSys_interfacesStatus(id,status){
+    var bodyParam={'method':'update','tableName':'sys_interfaces',
+        'param':'{"status":"'+status+'"}','condition':'{"id":"'+id+'"}'};
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -376,8 +470,8 @@ function updateSys_interfaces(info,id){
 function delSys_interfaces(id){
     var bodyParam={'method':'delete','tableName':'sys_interfaces',
         'condition':'{"id":"'+id+'"}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -430,15 +524,15 @@ function addSys_datasources(info){
     var bodyParam={'method':'create','dbInfo':info,'mem_id':userinfo['id'],'status':$('#datasource_status').val(),
         'nm_t':$('#datasource_nm_t').val(),'pro_id':'0'};
 
-    var httpR = new createHttpR(url+'DataSource','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DataSource','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
         if(status=='0'){
             alert("新建成功！");
-            window.location.reload();
-            //window.location.href="datasource.html?index="+datasourceIndex;
+            //window.location.reload();
+            window.location.href="datasource.html?index=0";
         }
     });
 }
@@ -451,8 +545,8 @@ function updateSys_datasources(info,id){
         'param':'{"status":"'+$('#ds_status').val()+'","nm_t":"'+$('#ds_nm_t').val()+
         '","ds_json":'+info+'}','condition':'{"id":"'+id+'"}'};
 
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -469,8 +563,8 @@ function updateSys_datasources(info,id){
 function delSys_datasources(id){
     var currentDatasource=datasourceData[datasourceIndex];
     var bodyParam={'method':'delete','dat_id':currentDatasource.id};
-    var httpR = new createHttpR(url+'DataSource','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DataSource','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -486,6 +580,7 @@ function delSys_datasources(id){
  * @param info
  */
 function  querySys_datasources () {
+
     $('#datasourceDiv').html('');
     var param='{"order":"order by id desc"}';
     var bodyParam={'method':'query','tableName':'sys_datasources','param':param};
@@ -558,13 +653,32 @@ function addSys_entities(dat_id,param){
     var bodyParam={'method':'create','dat_id':dat_id,'mem_id':userinfo['id'],'status':'1',
         'nm_t':$('#entity_nm_t').val(),'desc_t':$('#entity_desc_t').val(),
         'param':param};
-    var httpR = new createHttpR(url+'Entity','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'Entity','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
         if(status=='0'){
             alert("新建成功！");
+            //window.location.reload();
+            window.location.href="datasource.html?index="+datasourceIndex;
+        }
+    });
+}
+/**
+ * 修改实体
+ */
+function updateSys_entities(dat_id,entity_id,param){
+
+    var bodyParam={'method':'update','dat_id':dat_id,'tableName':'sys_entities','param':param,'condition':'{"id":"'+entity_id+'"}'};
+
+    var httpR = new createHttpAsync(url+'DbService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
+        var obj = JSON.parse(response);
+        var status = obj['status'];
+        var msg = obj['msg'];
+        if(status=='0'){
+            alert("修改成功！");
             //window.location.reload();
             window.location.href="datasource.html?index="+datasourceIndex;
         }
@@ -577,8 +691,8 @@ function delSys_entities(){
     //data : {'method':'delete','ent_id':'3','tableName':'testst2'},
     var currentEntity=entityData[entityIndex];
     var bodyParam={'method':'delete','ent_id':currentEntity.id,'tableName':currentEntity.nm_t};
-    var httpR = new createHttpR(url+'Entity','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'Entity','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -793,7 +907,6 @@ function  relation_querySys_entities (e_id) {
 
             $('#r_e_select').html(html);
             $('#r_t_name').html(rel_html);
-
         }
     });
 }
@@ -825,7 +938,6 @@ function   relation_querySys_entities_col (e_nm_t,c_name) {
                 }
             }
             $('#r_c_select').html(html);
-
 
 
         }
@@ -863,6 +975,7 @@ function  querySys_relations (e_id) {
                         '<td>'+r_json['rel']+'</td>\n' +
                         '<td>\n' +
                         '<button title="删除" index='+o+' class="glyphicon glyphicon-trash fr mr10 titlebox-btn3" data-toggle="modal" data-target="#entity-rela-del"></button>\n' +
+                        '<button index='+o+' title="保存" class="glyphicon glyphicon-floppy-disk fr  titlebox-btn5" data-toggle="modal" ></button>\n' +
                         '</td>\n' +
                         '</tr>';
                     r_html+='<tr>\n' +
@@ -880,6 +993,7 @@ function  querySys_relations (e_id) {
                         '<td>'+r_json['rel'].split('').reverse().join('')+'</td>\n' +
                         '<td>\n' +
                         '<button title="删除" index='+o+' class="glyphicon glyphicon-trash fr mr10 titlebox-btn3" data-toggle="modal" data-target="#entity-rela-del"></button>\n' +
+                        '<button index='+o+' title="保存" class="glyphicon glyphicon-floppy-disk fr  titlebox-btn5" data-toggle="modal" ></button>\n' +
                         '</td>\n' +
                         '</tr>';
                     r_html+='<tr>\n' +
@@ -914,8 +1028,8 @@ function addSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk){
             '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
             col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+fk+'"}}'};
 
-        var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-        httpR.HttpRequest(function(response){
+        var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+        httpR.HttpRequestAsync(function(response){
             var obj = JSON.parse(response);
             var status = obj['status'];
             var msg = obj['msg'];
@@ -931,8 +1045,8 @@ function addSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk){
         var bodyParam={'method':'fkey','dat_id':datasourceData[datasourceIndex].id,'tableNameS':getEntityNameById(ent1_id),'colS':col1,
             'tableNameP':getEntityNameById(ent2_id),'colP':col2};
 
-        var httpR = new createHttpR(url+'DbService','post','text',bodyParam,'callBack');
-        httpR.HttpRequest(function(response){
+        var httpR = new createHttpAsync(url+'DbService','post','text',bodyParam,'callBackAsync');
+        httpR.HttpRequestAsync(function(response){
             var obj = JSON.parse(response);
             var status = obj['status'];
             var msg = obj['msg'];
@@ -943,13 +1057,76 @@ function addSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk){
                     '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
                     col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+msg+'"}}'};
 
-                var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-                httpR.HttpRequest(function(response){
+                var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+                httpR.HttpRequestAsync(function(response){
                      obj = JSON.parse(response);
                      status = obj['status'];
                      msg = obj['msg'];
                     if(status=='0'){
                         alert("新建成功！");
+                        //window.location.reload();
+                        window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
+                        //window.location.href="interface.html?index="+interfaceIndex;
+                    }
+                });
+            }
+        });
+    }
+
+
+
+}
+/**
+ * 修改关系
+ * @param info
+ */
+function updateSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk,id){
+
+
+
+    if(fk=='n'){
+        var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
+        var bodyParam={'method':'update','tableName':'sys_relations',
+            'param':'{"mem_id":"'+userinfo['id']+'","status":"1","ent1_id":"'+ent1_id+
+            '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
+            col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+fk+'"}}','condition':'{"id":"'+id+'"}'};
+
+        var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+        httpR.HttpRequestAsync(function(response){
+            var obj = JSON.parse(response);
+            var status = obj['status'];
+            var msg = obj['msg'];
+            if(status=='0'){
+                alert("修改成功！");
+                //window.location.reload();
+                //window.location.href="interface.html?index="+interfaceIndex;
+                window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
+            }
+        });
+    }
+    else{
+        var bodyParam={'method':'fkey','dat_id':datasourceData[datasourceIndex].id,'tableNameS':getEntityNameById(ent1_id),'colS':col1,
+            'tableNameP':getEntityNameById(ent2_id),'colP':col2};
+
+        var httpR = new createHttpAsync(url+'DbService','post','text',bodyParam,'callBackAsync');
+        httpR.HttpRequestAsync(function(response){
+            var obj = JSON.parse(response);
+            var status = obj['status'];
+            var msg = obj['msg'];
+            if(status=='0'){
+                var userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
+                var bodyParam={'method':'update','tableName':'sys_relations',
+                    'param':'{"mem_id":"'+userinfo['id']+'","status":"1","ent1_id":"'+ent1_id+
+                    '","ent2_id":"'+ent2_id+'","relation_json":{"'+ent1_id+'":"'+col1+'","'+ent2_id+'":"'+
+                    col2+'","rel":"'+info+'","rel_table":"'+rel_table+'","fk":"'+msg+'"}}','condition':'{"id":"'+id+'"}'};
+
+                var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+                httpR.HttpRequestAsync(function(response){
+                    obj = JSON.parse(response);
+                    status = obj['status'];
+                    msg = obj['msg'];
+                    if(status=='0'){
+                        alert("修改成功！");
                         //window.location.reload();
                         window.location.href="entity.html?index="+datasourceIndex+"&eindex="+entityIndex;
                         //window.location.href="interface.html?index="+interfaceIndex;
@@ -970,8 +1147,8 @@ function addSys_relations(ent1_id,col1,ent2_id,col2,info,rel_table,fk){
 function delSys_relations(id){
     var bodyParam={'method':'delete','tableName':'sys_relations',
         'condition':'{"id":"'+id+'"}'};
-    var httpR = new createHttpR(url+'DipService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DipService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];
@@ -1001,8 +1178,8 @@ function getEntityNameById(e_id) {
      */
 function executeSql(dat_id,type,sql,jumpUrl){
     var bodyParam={'method':'execute','dat_id':dat_id,'type':type,'sql':sql};
-    var httpR = new createHttpR(url+'DbService','post','text',bodyParam,'callBack');
-    httpR.HttpRequest(function(response){
+    var httpR = new createHttpAsync(url+'DbService','post','text',bodyParam,'callBackAsync');
+    httpR.HttpRequestAsync(function(response){
         var obj = JSON.parse(response);
         var status = obj['status'];
         var msg = obj['msg'];

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>茸鹿登记</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap-datetimepicker.css">
+    <script src="js/build/dist/echarts.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap-datetimepicker.js"></script>
+    <script src="js/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        $(document).ready(function(){
+
+            //初始化日期插件
+            $('#searchDate').datetimepicker({
+                format: 'yyyy-mm-dd',
+                language:  'zh-CN',
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 4,
+                forceParse: 0,
+                pickerPosition:'bottom'//日期插件弹出的位置
+            });
+        });
+    </script>
+</head>
+<body>
+<!--line1-->
+<div class="topbar">
+    <img class="logo-img fl" src="images/logo.png" />
+    <h1 class="fl">智慧茸鹿养殖鹿场端</h1>
+
+
+        <ul class="nav navbar-nav fr mr20">
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle username-atitword" data-toggle="dropdown">
+                    <span class="user-imgbox" style="background-image: url(images/userpic.jpg)"></span>
+                    用户名
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu topbar-nav-rul">
+                    <li><a href="#">鹿场信息</a></li>
+                    <li><a href="#">修改密码</a></li>
+                </ul>
+            </li>
+            <li><a href="#" class="username-atitword">退出</a></li>
+        </ul>
+
+
+
+</div>
+<div class="clean"></div>
+
+<div class="deer-panel deer-column">
+    <ul class="nav nav-tabs nav-justified">
+        <li><a href="#">首页</a></li>
+        <li class="active">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                登记 <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">茸鹿登记</a></li>
+                <li><a href="#">鹿产品登记</a></li>
+            </ul>
+        </li>
+        <li><a href="#">喂养标准</a></li>
+        <li><a href="#">员工管理</a></li>
+        <li class="dropdown">
+            <a href="#">疾病监控</a>
+        </li>
+        <li><a href="#">统计</a></li>
+        <li><a href="#">喂养情况</a></li>
+    </ul>
+</div>
+
+<section class="deer-wrap">
+    <div class="row mar0 mt15">
+        <div class="col-md-12">
+            <div class="index-area">
+                <h2 class="h-title">茸鹿登记</h2>
+
+                <form class="form-horizontal deer-infor-fbox" role="form">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">选择圈舍</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">品种</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">性别</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">出生日期</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control dateType" placeholder="">
+                                <div class="controls">
+                                    <div class="input-prepend input-group">
+                                        <span class="add-on input-group-addon"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>
+                                        <input type="text" readonly="readonly" style="width: 200px" name="birthday" id="searchDate" class="form-control" value="" />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">茸鹿图片</label>
+                            <div class="col-sm-10">
+                                <input type="file" id="inputfile">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">周期</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" disabled>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">地区</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">提交时间</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">健康状况</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">备注</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control textarea-line" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12 text-center mt15">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+</section>
+
+
+
+
+
+</body>
+
+</html>

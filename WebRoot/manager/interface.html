@@ -9,6 +9,7 @@
     <meta name="keywords" content="数据集成平台"/>
     <link rel="stylesheet" type="text/css"  href="css/style.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jquery.mloading.css">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 
@@ -17,7 +18,7 @@
     <script src="js/manager/json2.js"></script>
     <script src="js/manager/interface.js"></script>
 
-
+    <script src="js/manager/jquery.mloading.js"></script>
 
     <!--simple tree-->
     <script type="text/javascript" src="js/SimpleTree.js"></script>
@@ -57,7 +58,7 @@
 
 <!--line3-->
 <div class="functionarea clearfix">
-    <a href="#" title="保存" class="btn-keep fl">保存</a>
+    <a href="#" title="保存" class="btn-keep fl" data-toggle="modal" data-target="#interface-update" id="save">保存</a>
     <!--<a href="#" title="删除" class="btn-delete fl">删除</a>-->
 
     <span class="btn-line-divi fl"></span>
@@ -107,9 +108,9 @@
     <!--////////////////////////////////different area//////////////////////-->
     <div class="content-centerC">
         <div class="titleboxB">
-            <span class="titleword" id="interfaceTitle">项目（）</span>
+            <span class="titleword" id="interfaceTitle">接口（）</span>
             <div class="fr text-right">
-                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#interface-regist">新接口注册</button>
+                <!--<button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#interface-regist">新接口注册</button>-->
                 <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#interface-edit">接口编辑</button>
                 <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#interface-delete">接口删除</button>
             </div>
@@ -142,6 +143,9 @@
         <div class="part1">
             <div class="titleboxA">
                 <span class="tltle-line">接口列表</span>
+                <a href="#"  title="新建" class="titlebox-btn" data-toggle="modal" data-target="#interface-regist">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
             </div>
             <div class="list-group part3-box" id="interfaceDiv">
                 <!--<a class="list-group-item active"><span class="glyphicon glyphicon-modal-window mr10"></span>XXXXXXXXXXX_xxxx_function1()</a>
@@ -264,7 +268,7 @@
                     </dd>
                 </dl>
                 <dl class="dl-horizontal">
-                    <dt>项目概述：</dt>
+                    <dt>接口备注：</dt>
                     <dd>
                         <form role="form">
                             <div class="form-group">
@@ -334,7 +338,7 @@
                     </dd>
                 </dl>
                 <dl class="dl-horizontal">
-                    <dt>项目概述：</dt>
+                    <dt>接口备注：</dt>
                     <dd>
                         <form role="form">
                             <div class="form-group">
@@ -503,6 +507,21 @@
             </div>
         </div><!-- /.modal-content -->
     </div>
+</div>
+<div class="modal fade" id="interface-update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">修改确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要保存对接口的修改吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveBtn">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
 </div>
 <!--模态框分割线2-->
 <div class="modal fade" id="logout-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

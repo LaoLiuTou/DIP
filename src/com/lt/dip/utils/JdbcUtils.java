@@ -1227,7 +1227,7 @@ public class JdbcUtils {
 					ConnectPoolC3P0 cp = ConnectPoolC3P0.getInstance(dbJO.getString("dbType"),
 							dbJO.getString("dbHost"),dbJO.getString("dbPort"),dbJO.getString("dbName"),
 							dbJO.getString("dbUser"),dbJO.getString("dbPassword"));
-					
+					logger.info("SQL:"+sql);
 					/* String sql = "delete from myuser where userID=5"; */
 					if(sql!=null&&!sql.equals("")){
 						if(type.equals("insert")){

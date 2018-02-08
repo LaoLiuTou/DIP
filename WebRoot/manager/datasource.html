@@ -9,19 +9,22 @@
     <meta name="keywords" content="数据集成平台"/>
     <link rel="stylesheet" type="text/css"  href="css/style.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jquery.mloading.css">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/manager/jquery.mloading.js"></script>
 
     <script src="js/manager/md5.js"></script>
     <script src="js/manager/config.js"></script>
     <script src="js/manager/json2.js"></script>
+    <script src="js/manager/interface.js"></script>
     <script src="js/manager/datasource.js"></script>
     <!--simple tree-->
     <script type="text/javascript" src="js/SimpleTree.js"></script>
 
+
     <script type="text/javascript">
         $(function(){
-
             $(".st_tree_data").SimpleTree({
                 click:function(a){
                     if(!$(a).attr("hasChild"))
@@ -102,7 +105,7 @@
             <span class="titleword" id="datasourceTitle">数据源（智慧茸鹿养殖）</span>
             <div class="fr text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-entity" id="ds_add_entity">添加实体</button>
-                <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#config-delete-x" id="delete">删除实体</button>
+                <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#config-delete-e" id="delete">删除实体</button>
             </div>
         </div>
         <div class="part2">
@@ -124,13 +127,16 @@
         <div class="part1">
             <div class="titleboxA">
                 <span class="tltle-line">接口列表</span>
+                <a href="#"  title="新建" class="titlebox-btn" data-toggle="modal" data-target="#interface-regist">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
             </div>
             <div class="list-group part3-box" id="interfaceDiv">
             </div>
         </div>
 
         <!--////////////////////////////////different area//////////////////////-->
-        <div class="part2">
+        <div class="part2" id="dsPart">
             <div class="titleboxA">
                 <span class="tltle-line">参数设置</span>
             </div>
@@ -220,6 +226,57 @@
             </div>
 
         </div>
+        <div class="part2" id="entityPart">
+            <div class="titleboxA">
+                <span class="tltle-line">参数设置</span>
+            </div>
+            <div class="part1-box mt20">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">实体名</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input type="text" id="en_nm_t" class="form-control"  placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">备注</label>
+                        <div class="col-sm-8 pdlr10">
+                            <textarea class="form-control textarea-line" id="desc_t" rows="3"> </textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">状态</label>
+                        <div class="col-sm-8 pdlr10">
+                            <select class="form-control" id="en_status">
+                                <option value="1">启用</option>
+                                <option value="0">停用</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">创建时间</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input class="form-control" id="en_c_dt" type="text" placeholder="2017/10/10" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group mar0">
+                        <label class="col-sm-4 control-label pdlr10">创建者</label>
+                        <div class="col-sm-8 pdlr10">
+                            <input class="form-control" id="en_mem_id"  type="text" placeholder="Administrator" disabled>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+            </div>
+
+        </div>
 
 
     </div>
@@ -234,10 +291,41 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title titlewordC">删除确认</h4>
             </div>
-            <div class="modal-body remind-bg">您确定要删除吗？</div>
+            <div class="modal-body remind-bg">您确定要删除数据源吗？</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" id="deleteDatasourceBtn">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--通用删除-->
+<div class="modal fade" id="config-delete-e" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">删除确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要删除实体吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="deleteEntityBtn">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--通用删除-->
+<div class="modal fade" id="config-delete-n" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">删除确认</h4>
+            </div>
+            <div class="modal-body remind-bg">请先选择实体，然后删除！</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
@@ -252,11 +340,26 @@
                 <div class="modal-body remind-bg">您确定要保存对数据源的修改吗？</div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="saveBtn">确定</button>
+                    <button type="button" class="btn btn-primary" id="saveDsBtn">确定</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
+<div class="modal fade" id="entity-update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">修改确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要保存对实体的修改吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveEntityBtn">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
 
 <!--模态框分割线3添加实体-->
 <div class="modal fade" id="add-entity" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -413,6 +516,85 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消
                 </button>
                 <button type="button" class="btn btn-primary" id="addDatasourceBtn">
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+<!-- 模态框（Modal）接口注册 -->
+<div class="modal fade" id="interface-regist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title titlewordC">
+                    接口注册
+                </h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>所在项目：</dt>
+                    <dd><input type="text"  value="数据平台" readonly="readonly" class="form-control inptext-box50 fl" ></dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>接口名称：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="nm_t" class="form-control"  placeholder="请输入接口名称">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>接口参数：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group" >
+                                <select class="form-control" id="paramNum">
+                                    <option value="0">请选择接口参数数量</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                </select>
+                            </div>
+                            <div id="paramDiv">
+
+                            </div>
+                            <!--<div class="form-group inptext-out">
+                                <input type="text" class="form-control inptext-box50 fl"  placeholder="参数1">
+                                <input type="text" class="form-control inptext-box50 fl"  placeholder="/*参数说明*/">
+                            </div>-->
+
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>项目概述：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <textarea class="form-control textarea-line" id="des" rows="3"> </textarea>
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <button type="button" class="btn btn-primary" id="addBtn">
                     确定
                 </button>
             </div>

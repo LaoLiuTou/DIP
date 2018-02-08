@@ -9,14 +9,17 @@
     <meta name="keywords" content="数据集成平台"/>
     <link rel="stylesheet" type="text/css"  href="css/style.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jquery.mloading.css">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/manager/md5.js"></script>
     <script src="js/manager/config.js"></script>
     <script src="js/manager/json2.js"></script>
+    <script src="js/manager/interface.js"></script>
     <script src="js/manager/entity.js"></script>
     <!--simple tree-->
     <script type="text/javascript" src="js/SimpleTree.js"></script>
+    <script src="js/manager/jquery.mloading.js"></script>
 
 
 
@@ -141,6 +144,9 @@
         <div class="part1">
             <div class="titleboxA">
                 <span class="tltle-line">接口列表</span>
+                <a href="#"  title="新建" class="titlebox-btn" data-toggle="modal" data-target="#interface-regist">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
             </div>
             <div class="list-group part3-box" id="interfaceDiv">
             </div>
@@ -189,7 +195,7 @@
                     <div class="form-group mar0">
                         <label class="col-sm-4 control-label pdlr10">数据长度</label>
                         <div class="col-sm-8 pdlr10">
-                            <input type="text" class="form-control" id="column_length" placeholder="请输入数据类型" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
+                            <input type="text" class="form-control" id="column_length" placeholder="请输入数据长度" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
                         </div>
                     </div>
 
@@ -224,7 +230,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group mar0">
+                    <!--<div class="form-group mar0">
                         <label class="col-sm-4 control-label pdlr10">关联规则</label>
                         <div class="col-sm-8 pdlr10">
                             <select class="form-control">
@@ -235,7 +241,7 @@
                                 <option>5</option>
                             </select>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!--<div class="form-group mar0">
                         <label class="col-sm-4 control-label pdlr10">创建时间</label>
@@ -259,7 +265,7 @@
                     <tr>
                         <th class="text-center" colspan="2">关系</th>
                         <th colspan="2">
-                            <button type="button" class="btn btn-primary btn-xs fr"  data-toggle="modal" data-target="#entity-rela-set">实体关系设置</button>
+                            <button type="button" id="rel_Setting_Btn" class="btn btn-primary btn-xs fr"  data-toggle="modal" data-target="#entity-rela-set">实体关系设置</button>
                         </th>
                     </tr>
                     </thead>
@@ -317,7 +323,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title titlewordC">修改确认</h4>
             </div>
-            <div class="modal-body remind-bg">您确定要保存对数据源的修改吗？</div>
+            <div class="modal-body remind-bg">您确定要保存对实体属性的修改吗？</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" id="saveBtn">确定</button>
@@ -380,7 +386,7 @@
                         <dt>数据长度：</dt>
                         <dd>
                             <div class="form-group">
-                                <input type="text" class="form-control" id="add_column_length" placeholder="请输入数据类型" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
+                                <input type="text" class="form-control" id="add_column_length" placeholder="请输入数据长度" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
                             </div>
                         </dd>
 
@@ -409,7 +415,7 @@
                             <label class="col-md-3 fl"><input type="radio" name="add_extra" id="add_extra_n" value="N" checked="checked" class="mr10">否</label>
                         </dd>
 
-                        <dt>关联规则：</dt>
+                        <!--<dt>关联规则：</dt>
                         <dd>
                             <div class="form-group">
                                 <select class="form-control">
@@ -420,7 +426,7 @@
                                     <option>5</option>
                                 </select>
                             </div>
-                        </dd>
+                        </dd>-->
 
                         <!--<dt>创建时间：</dt>
                         <dd>
@@ -504,8 +510,9 @@
                 <!--当前实体&其他实体-->
                 <div class="col-md-12 text-right mb5">
                     <a type="button" class="btn btn-primary" id="rel_addBtn">新建关系</a>
+                    <a type="button" class="btn btn-primary" id="rel_SaveBtn" style="display: none;">保存关系</a>
                 </div>
-                <table class="table table-bordered data-source-table">
+                <table class="table table-bordered data-source-table" id="rel_Table">
                     <tr>
                         <td>
                             <h4>当前实体</h4>
@@ -715,6 +722,84 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
+
+<!-- 模态框（Modal）接口注册 -->
+<div class="modal fade" id="interface-regist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title titlewordC">
+                    接口注册
+                </h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>所在项目：</dt>
+                    <dd><input type="text"  value="数据平台" readonly="readonly" class="form-control inptext-box50 fl" ></dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>接口名称：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" id="nm_t" class="form-control"  placeholder="请输入接口名称">
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>接口参数：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group" >
+                                <select class="form-control" id="paramNum">
+                                    <option value="0">请选择接口参数数量</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                </select>
+                            </div>
+                            <div id="paramDiv">
+
+                            </div>
+                            <!--<div class="form-group inptext-out">
+                                <input type="text" class="form-control inptext-box50 fl"  placeholder="参数1">
+                                <input type="text" class="form-control inptext-box50 fl"  placeholder="/*参数说明*/">
+                            </div>-->
+
+                        </form>
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>项目概述：</dt>
+                    <dd>
+                        <form role="form">
+                            <div class="form-group">
+                                <textarea class="form-control textarea-line" id="des" rows="3"> </textarea>
+                            </div>
+                        </form>
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <button type="button" class="btn btn-primary" id="addBtn">
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
 <!--模态框分割线2-->
 <div class="modal fade" id="entity-rela-del" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -727,6 +812,21 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button type="button" id="rel_delBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="modal fade" id="entity-rela-update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title titlewordC">修改确认</h4>
+            </div>
+            <div class="modal-body remind-bg">您确定要修改实体关系吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="rel_UpdateBtn" class="btn btn-primary">确定</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->

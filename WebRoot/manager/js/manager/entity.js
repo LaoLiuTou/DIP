@@ -28,6 +28,8 @@ $(document).ready(function() {
     ///初始化数据源数据
     querySys_datasources();
 
+
+
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////接口操作///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -71,13 +73,50 @@ $(document).ready(function() {
                 $(this).remove();
             }
         });
+
+    });
+
+    $('#rel_Setting_Btn').click(function(){
+        $('#rel_addBtn').show();
+        $('#rel_SaveBtn').hide();
+        $('#r_tbody>tr').attr('class','');
+        $('#r_tbody button').each(function(){
+            if($(this).attr('title')=='保存'){
+                $(this).attr('data-target','');
+                $(this).attr('class','glyphicon glyphicon-floppy-disk fr  titlebox-btn5');
+            }
+
+        });
+
+        var c_e_id=entityData[entityIndex].id;
+        querySys_entities_col();
+        relation_querySys_entities(c_e_id);
+
+
     });
     //
     $('#r_tbody').on('click','tr',function(){
         $('#r_tbody>tr').attr('class','');
         $(this).attr('class','info');
         relIndex=$(this).attr('index');
+        $('#rel_addBtn').show();
+        $('#rel_SaveBtn').hide();
+
         var rel_json=JSON.parse(relData[$(this).attr('index')].relation_json);
+        $('#r_tbody button').each(function(){
+            if($(this).attr('title')=='保存'){
+                if($(this).attr('index')==relIndex){
+                    $(this).attr('id','rel_UpdateBtn');
+                    $(this).attr('class','glyphicon glyphicon-floppy-disk fr  titlebox-btn4');
+                }
+                else{
+                    $(this).attr('id','');
+                    $(this).attr('class','glyphicon glyphicon-floppy-disk fr  titlebox-btn5');
+                }
+
+            }
+
+        });
         $('#r_c_li>li').each(function(){
             if($(this).attr('column_name')==rel_json[entityData[entityIndex].id]){
                 $(this).click();
@@ -114,7 +153,27 @@ $(document).ready(function() {
 
         $('#select_rel').trigger("change");
 
+
+
     });
+    $('#rel_addBtn').click(function(){
+        $('#r_tbody>tr').attr('class','');
+        $('#r_tbody button').each(function(){
+            if($(this).attr('title')=='保存'){
+                $(this).attr('data-target','');
+                $(this).attr('class','glyphicon glyphicon-floppy-disk fr  titlebox-btn5');
+            }
+
+        });
+
+        $('#rel_addBtn').hide();
+        $('#rel_SaveBtn').show();
+        var c_e_id=entityData[entityIndex].id;
+        querySys_entities_col();
+        relation_querySys_entities(c_e_id);
+
+    });
+
     $('#r_c_li').on('click','li',function(){
         $('#r_c_li').find('a').css('color','#119cfa');
         $(this).find('a').css('color','#23527c');
@@ -138,7 +197,7 @@ $(document).ready(function() {
             //$('#f_k_label').hide();
         }
     });
-    $('#rel_addBtn').click(function(){
+    $('#rel_SaveBtn').click(function(){
         if($('#select_col').val()==''){
             alert('请选择当前实体属性');
             return false;
@@ -152,8 +211,103 @@ $(document).ready(function() {
             fkFlag='y';
         }
 
-        addSys_relations(entityData[entityIndex].id,$('#select_col').val(),$('#r_e_select').val(),
-            $('#r_c_select').find('option:selected').text(),$('#select_rel').val(),$('#r_t_name').val(),fkFlag);
+        /*var relJson='{"'+entityData[entityIndex].id+'":"'+$('#select_col').val()+'", "'+$('#r_e_select').val()+'":"'+
+            $('#r_c_select').find('option:selected').text()+'", "fk":"'+fkFlag+'", "rel":"'+$('#select_rel').val()+'", "rel_table":"'+$('#r_t_name').val()+'"}';
+        var relJsonReverse='{"'+$('#r_e_select').val()+'":"'+$('#r_c_select').find('option:selected').text()+'", "'+
+            entityData[entityIndex].id+'":"'+$('#select_col').val()+'", "fk":"'+fkFlag+'", "rel":"'+$('#select_rel').val().split('').reverse().join('')+'", "rel_table":"'+$('#r_t_name').val()+'"}';
+        var relJson2='{"'+$('#r_e_select').val()+'":"'+$('#r_c_select').find('option:selected').text()+'", "'+entityData[entityIndex].id+'":"'+$('#select_col').val()+'", "fk":"'+fkFlag+'", "rel":"'+$('#select_rel').val()+'", "rel_table":"'+$('#r_t_name').val()+'"}';
+        var relJson2Reverse='{"'+entityData[entityIndex].id+'":"'+$('#select_col').val()+'","'+$('#r_e_select').val()+'":"'+$('#r_c_select').find('option:selected').text()+'",  "fk":"'+fkFlag+'", "rel":"'+$('#select_rel').val().split('').reverse().join('')+'", "rel_table":"'+$('#r_t_name').val()+'"}';
+        */
+        var createFlag=true;
+        for(var o in relData){
+
+            var r_json=JSON.parse(relData[o].relation_json);
+
+            if(entityData[entityIndex].id==relData[o].ent1_id&&$('#r_e_select').val()==relData[o].ent2_id&&
+                r_json[entityData[entityIndex].id]==$('#select_col').val()&&r_json[$('#r_e_select').val()]==$('#r_c_select').find('option:selected').text()){
+                createFlag=false;
+            }
+            else if(entityData[entityIndex].id==relData[o].ent2_id&&$('#r_e_select').val()==relData[o].ent1_id&&
+                r_json[entityData[entityIndex].id]==$('#select_col').val()&&r_json[$('#r_e_select').val()]==$('#r_c_select').find('option:selected').text()){
+                createFlag=false;
+            }
+            else{
+            }
+            /*
+            if(entityData[entityIndex].id==relData[o].ent1_id&&$('#r_e_select').val()==relData[o].ent2_id&&relData[o].relation_json.replace(/\s+/g,"")==relJson.replace(/\s+/g,"")){
+                createFlag=false;
+            }
+            else if(entityData[entityIndex].id==relData[o].ent1_id&&$('#r_e_select').val()==relData[o].ent2_id&&relData[o].relation_json.replace(/\s+/g,"")==relJson2.replace(/\s+/g,"")){
+                createFlag=false;
+            }
+            else if(entityData[entityIndex].id==relData[o].ent2_id&&$('#r_e_select').val()==relData[o].ent1_id&&relData[o].relation_json.replace(/\s+/g,"")==relJsonReverse.replace(/\s+/g,"")){
+                createFlag=false;
+            }
+            else if(entityData[entityIndex].id==relData[o].ent2_id&&$('#r_e_select').val()==relData[o].ent1_id&&relData[o].relation_json.replace(/\s+/g,"")==relJson2Reverse.replace(/\s+/g,"")){
+                createFlag=false;
+            }
+            else{
+            }
+            */
+
+        }
+
+        if(createFlag){
+            addSys_relations(entityData[entityIndex].id,$('#select_col').val(),$('#r_e_select').val(),
+               $('#r_c_select').find('option:selected').text(),$('#select_rel').val(),$('#r_t_name').val(),fkFlag);
+        }
+        else{
+            alert("该关系已经存在，不能重复创建！");
+        }
+
+
+
+    });
+    $('#r_tbody').on('click','#rel_UpdateBtn',function(e){
+    //$('#rel_UpdateBtn').click(function(e){
+        //取消冒泡
+        e.cancelBubble = true;
+
+        if($('#select_col').val()==''){
+            alert('请选择当前实体属性');
+            return false;
+        }
+        if($('#r_e_select').val()==''){
+            alert('请选择其他实体');
+            return false;
+        }
+        var fkFlag='n';
+        if ($('#f_k_cb').is(':checked')) {
+            fkFlag='y';
+        }
+
+
+        var createFlag=true;
+        for(var o in relData){
+
+            var r_json=JSON.parse(relData[o].relation_json);
+
+            if(entityData[entityIndex].id==relData[o].ent1_id&&$('#r_e_select').val()==relData[o].ent2_id&&
+                r_json[entityData[entityIndex].id]==$('#select_col').val()&&r_json[$('#r_e_select').val()]==$('#r_c_select').find('option:selected').text()){
+                createFlag=false;
+            }
+            else if(entityData[entityIndex].id==relData[o].ent2_id&&$('#r_e_select').val()==relData[o].ent1_id&&
+                r_json[entityData[entityIndex].id]==$('#select_col').val()&&r_json[$('#r_e_select').val()]==$('#r_c_select').find('option:selected').text()){
+                createFlag=false;
+            }
+            else{
+            }
+        }
+
+        if(createFlag){
+            updateSys_relations(entityData[entityIndex].id,$('#select_col').val(),$('#r_e_select').val(),
+                $('#r_c_select').find('option:selected').text(),$('#select_rel').val(),$('#r_t_name').val(),fkFlag,relData[relIndex].id);
+        }
+        else{
+            alert("该关系已经存在，不能重复创建！");
+        }
+
+
 
     });
     $('#rel_delBtn').click(function(){
@@ -255,7 +409,7 @@ $(document).ready(function() {
                 sql+=' DEFAULT '+$('#column_default').val()+' ';
             }
             if($('#column_comment').val()!=''){
-                sql+=' COMMENT \''+$('#column_default').val()+'\' ';
+                sql+=' COMMENT \''+$('#column_comment').val()+'\' ';
             }
             if($('input[name="extra"]:checked').val()=='Y'){
                 sql+=' auto_increment ';
@@ -267,6 +421,7 @@ $(document).ready(function() {
 
     //新建
     $('#columnAddBtn').click(function(){
+
         if($('#add_column_name').val()==''){
             alert('属性名不能为空！');
             return false;

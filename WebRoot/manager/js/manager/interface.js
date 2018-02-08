@@ -112,7 +112,8 @@ $(document).ready(function() {
             $('#if_mem_id').val(JSON.parse(sys_user)[currentInterface.mem_id]);
         }
         //title
-        $('#interfaceTitle').text('项目('+currentInterface.type+')');
+        //$('#interfaceTitle').text('项目('+currentInterface.type+')');
+        $('#interfaceTitle').text('接口('+currentInterface.nm_t+')');
     });
 
     //接口修改按钮
@@ -131,6 +132,10 @@ $(document).ready(function() {
         updateSys_interfaces(JSON.stringify(info),currentInterface.id);
     });
 
+    $('#saveBtn').click(function(){
+        var currentInterface=interfaceData[interfaceIndex];
+        updateSys_interfacesStatus(currentInterface.id,$('#if_status').val());
+    });
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////数据源操作///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////

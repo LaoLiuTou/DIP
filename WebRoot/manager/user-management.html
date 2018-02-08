@@ -10,11 +10,13 @@
     <link rel="stylesheet" type="text/css"  href="css/style.css" />
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jquery.mloading.css">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/manager/md5.js"></script>
     <script src="js/manager/config.js"></script>
     <script src="js/manager/json2.js"></script>
+    <script src="js/manager/jquery.mloading.js"></script>
     <script type="text/javascript">
         //选中的id
         var selectId="";
@@ -47,10 +49,11 @@
             });
             $('#searchBtn').click(function(){
                 if($('#searchText').val() == ''){
-                    alert('请输入查询条件！');
-                    return false;
+                    querySys_members('');
                 }
-                querySys_members('%|%'+$('#searchText').val()+'%');
+                else{
+                    querySys_members('%|%'+$('#searchText').val()+'%');
+                }
             });
 
             $('#data_tbody > tr').click(function(){
@@ -70,7 +73,7 @@
 <!--line1-->
 <div class="topbar">
     <img class="logo-img fl" src="images/logo.png" />
-    <h1 class="fl">可视化体系应用平台</h1>
+    <h1 class="fl">企业数据集成平台</h1>
     <div class="userexit-box fr">
         <a href="#" class="exit-box fr" id="logout" data-toggle="modal" data-target="#logout-dialog">退出</a>
         <a href="user-management.html" id="loginName" class="username fr">用户名称</a>

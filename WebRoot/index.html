@@ -20,6 +20,7 @@
 	           url:'http://192.168.1.144/DIP/Members',
 	           type:"POST",
 	           data : {'username':'testuser','userpwd':'123456'},
+	           headers: {"source" : 'app'},
 	           success:function(response) {
 	            console.log(response);
 	            $("#token").text(response);
@@ -28,7 +29,7 @@
 				var timestamp = Date.parse(new Date());
 				var hash = md5(token+timestamp+"!QAZXSW@#C"); 
 				
-				    $.ajax({
+				    /* $.ajax({
 				       //数据源
 			           //url:'http://192.168.1.144/DIP/DataSource',
 				       //查询数据源
@@ -52,7 +53,7 @@
 		               //data : {'method':'delete','ent_id':'3','tableName':'testst2'},
 				       
 				       //实体数据
-				       url:'http://192.168.1.144/DIP/DbService',
+				       //url:'http://192.168.1.144/DIP/DbService',
 				       //查询实体数据
 			           //data : {'method':'query','dat_id':'1','tableName':'user3','param':'{"username":"!|3333","order":"order by userid desc"}'},
 				       //新建实体数据
@@ -70,20 +71,21 @@
   					   //恢复
 			           //data : {'method':'restore','dat_id':'2','file_path':'D:/backupDatabase/2017-12-12/23141318-44b2-49f1-b5d5-580b206e6621.sql'},
   					   //新建外键
-			           data : {'method':'fkey','dat_id':'1','tableNameS':'user3','colS':'pid','tableNameP':'persons','colP':'id_p'},
+			           //data : {'method':'fkey','dat_id':'1','tableNameS':'user3','colS':'pid','tableNameP':'persons','colP':'id_p'},
   						
  
   						
 				       //自有体系数据
-			           url:'http://192.168.1.144/DIP/DipService',
+			           //url:'http://192.168.1.110:8888/DIP/DipService',
 			           //查询实体数据
-			           data : {'method':'query','tableName':'sys_members','param':'{"username":"admin"}'},
+			           //data : {'method':'query','tableName':'sys_members','param':'{"username":"admin"}'},
 				       //新建实体数据
 			           //data : {'method':'insert','tableName':'pages_controls','param':'{"MEM_ID":"2","STATUS":"11","NM_T":"111","CON_ID":"6","PAR_ID":"","ATT_ID":"4","VALUES":"50px","PAG_ID":"11","PID":"2","C_DT":"2017-12-07 10:31:22","UP_DT":"2017-12-07 10:31:22"}'},
 				       //修改实体数据
 			           //data : {'method':'update','tableName':'members','param':'{"status":"0"}','condition':'{"id":"2"}'},
 				       //删除实体数据
 			           //data : {'method':'delete','tableName':'members','condition':'{"id":"2"}'},
+			           //data : {"method":"execute","type":"select","sql":"select * from  sys_parameters WHERE `desc` like '%通信%' or nm_t like '%通信%'"},
  
  
  
@@ -102,7 +104,7 @@
 			           error:function(response){
 			           	alert("wrong");   
 			           }   
-				    });
+				    }); */
 	           },
 	           error:function(response){
 	           	alert("wrong");   
